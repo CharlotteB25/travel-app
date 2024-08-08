@@ -1,27 +1,18 @@
 import { LitElement, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { router } from "@core/router";
-import { defaultStyles } from "@components/style/styles";
-import { createContext, provide } from "@lit/context";
-import { Trip } from "@core/modules/trips/Trip.types";
 import { getTripById } from "@core/modules/trips/Trip.api";
+import { Trip } from "@core/modules/trips/Trip.types";
+import { router } from "@core/router";
 
 import "@components/design/LoadingIndicator";
 import "@components/design/ErrorView";
 
-export type TripContext = {
-  trip: Trip | null;
-  refresh: () => void;
-};
-
-export const tripContext = createContext<TripContext | null>("trip");
-
-@customElement("trip-detail-container")
-class TripDetailContainer extends LitElement {
+@customElement("trip-detail")
+class TripDetail extends LitElement {
   @property()
   isLoading: boolean = false;
-  @provide({ context: tripContext })
-  tripContext: TripContext | null = null;
+  @property()
+  trip: Trip | null = null;
   @property()
   error: string | null = null;
 
@@ -30,15 +21,10 @@ class TripDetailContainer extends LitElement {
   // called when the element is first connected to the document’s DOM
   connectedCallback(): void {
     super.connectedCallback();
-    this.tripContext = {
-      trip: null,
-      refresh: this.fetchItem,
-    };
-    this.fetchItem();
+    this.fetchItems();
   }
 
-  // arrow function! otherwise "this" won't work in context provider
-  fetchItem = () => {
+  fetchItems() {
     if (
       !this.location.params.id ||
       typeof this.location.params.id !== "string"
@@ -47,28 +33,20 @@ class TripDetailContainer extends LitElement {
     }
 
     this.isLoading = true;
+    // todo in api
     getTripById(this.location.params.id)
       .then(({ data }) => {
-        this.tripContext = {
-          trip: data,
-          refresh: this.fetchItem,
-        };
+        this.trip = data;
         this.isLoading = false;
       })
       .catch((error) => {
         this.error = error.message;
         this.isLoading = false;
       });
-  };
+  }
 
   render() {
-    const { isLoading, tripContext, error } = this;
-
-    if (!tripContext) {
-      return html``;
-    }
-
-    const { trip } = tripContext;
+    const { isLoading, trip, error } = this;
 
     if (error) {
       return html`<error-view error=${error} />`;
@@ -78,10 +56,8 @@ class TripDetailContainer extends LitElement {
       return html`<loading-indicator></loading-indicator>`;
     }
 
-    return html`<slot></slot>`;
+    return html` <h2>${trip.location}</h2>`;
   }
-
-  static styles = [defaultStyles];
 }
 
-export default TripDetailContainer;
+export default TripDetail;

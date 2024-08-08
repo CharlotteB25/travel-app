@@ -6,7 +6,11 @@ import "@components/design/ErrorView";
 import { login } from "@core/modules/auth/Auth.api";
 import * as Storage from "@core/storage";
 import { Router } from "@vaadin/router";
-import { buttonStyles, defaultStyles, formStyles } from "@styles/styles";
+import {
+  buttonStyles,
+  defaultStyles,
+  formStyles,
+} from "@components/style/styles";
 
 import "@components/design/ErrorView";
 

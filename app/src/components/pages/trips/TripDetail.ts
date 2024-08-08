@@ -1,67 +1,43 @@
 import { LitElement, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { getTripById } from "@core/modules/trips/api";
-import { Trip } from "@core/modules/trips/types";
-import { router } from "@core/router";
+import { defaultStyles } from "@components/style/styles";
+import { consume } from "@lit/context";
+import { TripContext, tripContext } from "./TripDetailContainer";
 
-import "@components/design/LoadingIndicator";
-import "@components/design/ErrorView";
+import "@components/design/Header/PageHeader";
+import "@components/design/Typography/PageTitle";
+import "@components/design/Button/Button";
 
 @customElement("trip-detail")
 class TripDetail extends LitElement {
-  @property({ type: Boolean })
-  isLoading: boolean = false;
-
-  @property({ type: Object })
-  trip: Trip | null = null;
-
-  @property({ type: String })
-  error: string | null = null;
-
-  @property({ type: Object })
-  location = router.location;
-
-  // called when the element is first connected to the document’s DOM
-  connectedCallback(): void {
-    super.connectedCallback();
-    this.fetchItems();
-  }
-
-  fetchItems() {
-    if (
-      !this.location.params.id ||
-      typeof this.location.params.id !== "string"
-    ) {
-      return;
-    }
-
-    this.isLoading = true;
-    this.error = null;
-    getTripById(this.location.params.id)
-      .then(({ data }) => {
-        this.trip = data;
-        this.isLoading = false;
-      })
-      .catch((error) => {
-        this.error = error.message;
-        this.isLoading = false;
-      });
-  }
+  @consume({ context: tripContext, subscribe: true })
+  @property({ attribute: false })
+  public tripContextValue?: TripContext | null;
 
   render() {
-    const { isLoading, trip, error } = this;
+    const { tripContextValue } = this;
 
-    if (error) {
-      return html`<error-view .error=${error}></error-view>`;
+    if (!tripContextValue || !tripContextValue.trip) {
+      return html``;
     }
 
-    if (isLoading || !trip) {
-      return html`<loading-indicator></loading-indicator>`;
+    const { trip } = tripContextValue;
+
+    if (!trip) {
+      return html``;
     }
 
-    return html`<h2>${trip.title}</h2>
-      <p>detail page</p>`;
+    return html`
+      <app-page-header>
+        <app-page-title>${trip.location}</app-page-title>
+        <app-button href="/trips/${trip._id}/edit" color="secondary"
+          >Aanpassen</app-button
+        >
+      </app-page-header>
+    `;
   }
+
+  static styles = [defaultStyles];
 }
 
 export default TripDetail;

@@ -1,11 +1,10 @@
 import { LitElement, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { defaultStyles } from "@styles/styles";
+import { defaultStyles } from "@components/style/styles";
 import userContext from "@components/auth/userContext";
 import { consume } from "@lit/context";
 import { DashboardData, User } from "@core/modules/user/User.types";
 import { getDashboardData } from "@core/modules/user/User.api";
-import { formatDuration } from "@core/modules/logs/Log.utils";
 
 import "@components/design/Typography/PageTitle";
 import "@components/design/Header/PageHeader";
@@ -53,19 +52,9 @@ class Home extends LitElement {
     } else {
       content = html`<app-grid>
         <app-amount-card
-          title="Projecten"
-          amount=${data.projects}
-          href="/projects"
-        ></app-amount-card>
-        <app-amount-card
           title="Klanten"
-          amount=${data.clients}
+          amount=${data.trips}
           href="/clients"
-        ></app-amount-card>
-        <app-amount-card
-          title="Totaal uren"
-          amount=${formatDuration(data.duration)}
-          href="/logs"
         ></app-amount-card>
       </app-grid>`;
     }

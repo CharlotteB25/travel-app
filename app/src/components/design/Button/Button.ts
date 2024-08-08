@@ -1,6 +1,6 @@
 import { LitElement, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { buttonStyles, defaultStyles } from "@styles/styles";
+import { buttonStyles, defaultStyles } from "@components/style/styles";
 import isEmptyText from "@core/utils/isEmptyText";
 
 @customElement("app-button")

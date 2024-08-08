@@ -1,31 +1,30 @@
 import { LitElement, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { updateTrip } from "@core/modules/trips/api";
-import { TripBody } from "@core/modules/trips/types";
-import { defaultStyles } from "@styles/styles";
+import { defaultStyles } from "@components/style/styles";
 import { consume } from "@lit/context";
 import { TripContext, tripContext } from "./TripDetailContainer";
+import { TripBody } from "@core/modules/trips/Trip.types";
+import { updateTrip } from "@core/modules/trips/Trip.api";
 
-import "@components/shared/projects/form/ProjectForm";
+import "@components/shared/trips/form/TripForm";
 import "@components/design/Typography/PageTitle";
 import "@components/design/Header/PageHeader";
 
-@customElement("trip-edit")
-class ProjectEdit extends LitElement {
+@customElement("clitripent-edit")
+class TripEdit extends LitElement {
   @consume({ context: tripContext, subscribe: true })
   @property({ attribute: false })
   public tripContextValue?: TripContext | null;
 
   handleSuccess = () => {
     const { tripContextValue } = this;
-
     if (tripContextValue) {
       tripContextValue.refresh();
     }
   };
 
   render() {
-    const { tripContextValue, handleSuccess } = this;
+    const { tripContextValue } = this;
 
     if (!tripContextValue || !tripContextValue.trip) {
       return html``;
@@ -33,18 +32,22 @@ class ProjectEdit extends LitElement {
 
     const { trip } = tripContextValue;
 
+    if (!trip) {
+      return html``;
+    }
+
     return html` <app-page-header>
-        <app-page-title>trip aanpassen</app-page-title>
+        <app-page-title>Klant aanpassen</app-page-title>
       </app-page-header>
-      <project-form
+      <trip-form
         submitLabel="Aanpassen"
+        .onSuccess=${this.handleSuccess}
         .data=${trip}
-        .onSuccess=${handleSuccess}
         .method=${(body: TripBody) => updateTrip(trip._id, body)}
-      ></project-form>`;
+      ></trip-form>`;
   }
 
   static styles = [defaultStyles];
 }
 
-export default ProjectEdit;
+export default TripEdit;

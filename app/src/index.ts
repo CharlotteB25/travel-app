@@ -1,5 +1,5 @@
-import "./style/reset.css";
-import "./style/main.css";
+import "./components/style/reset.css";
+import "./components/style/main.css";
 
 import { router } from "@core/router";
 
@@ -22,13 +22,6 @@ const routes = [
             component: "app-home",
             action: async () => {
               await import("@components/pages/home/home");
-            },
-          },
-          {
-            path: "logs",
-            component: "log-overview",
-            action: async () => {
-              await import("@components/pages/logs/LogOverview");
             },
           },
           {

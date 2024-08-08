@@ -3,7 +3,7 @@ import { customElement } from "lit/decorators.js";
 
 import "@components/design/Navigation";
 import "@components/design/Container";
-import { defaultStyles } from "@styles/styles";
+import { defaultStyles } from "@components/style/styles";
 
 @customElement("my-app")
 class App extends LitElement {

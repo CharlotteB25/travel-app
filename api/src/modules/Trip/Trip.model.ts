@@ -47,10 +47,10 @@ const tripSchema = new mongoose.Schema<Trip>(
   }
 );
 
-// tripSchema.pre("save", function (next) {
-//   validateModel(this);
-//   next();
-// });
+tripSchema.pre("save", function (next) {
+  validateModel(this);
+  next();
+});
 
 const TripModel = mongoose.model<Trip>("Trip", tripSchema);
 

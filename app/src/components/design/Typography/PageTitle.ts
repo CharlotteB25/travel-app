@@ -1,6 +1,6 @@
 import { LitElement, css, html } from "lit";
 import { customElement } from "lit/decorators.js";
-import { defaultStyles } from "@styles/styles";
+import { defaultStyles } from "@components/style/styles";
 
 @customElement("app-page-title")
 class PageTitle extends LitElement {

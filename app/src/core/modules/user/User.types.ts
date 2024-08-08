@@ -8,5 +8,5 @@ export type User = {
 export type DashboardData = {
   duration: number;
   projects: number;
-  clients: number;
+  trips: number;
 };

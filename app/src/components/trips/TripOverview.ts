@@ -5,16 +5,12 @@ import { Trip } from "@core/modules/trips/Trip.types";
 
 import "@components/design/LoadingIndicator";
 import "@components/design/ErrorView";
-import "@components/design/Button/Button";
-import "@components/design/Header/PageHeader";
-import "@components/design/Typography/PageTitle";
-import { defaultStyles } from "@components/style/styles";
 
 @customElement("trip-overview")
 class TripOverview extends LitElement {
   @property()
   isLoading: boolean = false;
-  @property({ type: Array })
+  @property()
   trips: Array<Trip> | null = null;
   @property()
   error: string | null = null;
@@ -27,6 +23,7 @@ class TripOverview extends LitElement {
 
   fetchItems() {
     this.isLoading = true;
+    // todo in api
     getTrips()
       .then(({ data }) => {
         this.trips = data;
@@ -41,19 +38,16 @@ class TripOverview extends LitElement {
   render() {
     const { isLoading, trips, error } = this;
 
-    if (!Array.isArray(trips)) {
-      return html`<p>Something went wrong</p>`;
+    if (error) {
+      return html`<error-view error=${error} />`;
     }
 
-    let content = html``;
-    if (error) {
-      content = html`<error-view error=${error} />`;
-    } else if (isLoading || !trips) {
-      content = html`<loading-indicator></loading-indicator>`;
-    } else if (trips.length === 0) {
-      content = html`<p>no trips yet</p>`;
-    } else {
-      content = html`<ul>
+    if (isLoading || !trips) {
+      return html`<loading-indicator></loading-indicator>`;
+    }
+
+    return html` <h2>Trips</h2>
+      <ul>
         ${trips.map((c) => {
           return html`
             <li>
@@ -62,16 +56,7 @@ class TripOverview extends LitElement {
           `;
         })}
       </ul>`;
-    }
-
-    return html` <app-page-header>
-        <app-page-title>Trips</app-page-title>
-        <app-button href="/trip/create">Add Trip</app-button>
-      </app-page-header>
-      ${content}`;
   }
-
-  static styles = [defaultStyles];
 }
 
 export default TripOverview;

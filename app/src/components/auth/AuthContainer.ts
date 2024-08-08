@@ -5,7 +5,7 @@ import { getCurrentUser } from "@core/modules/user/User.api";
 import { API } from "@core/network/api";
 import { AxiosError, AxiosResponse } from "axios";
 import { Router } from "@vaadin/router";
-import { defaultStyles } from "@styles/styles";
+import { defaultStyles } from "@components/style/styles";
 
 import "@components/design/LoadingIndicator";
 import "@components/design/ErrorView";

@@ -1,13 +1,17 @@
 import { LitElement, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { buttonStyles, defaultStyles, formStyles } from "@styles/styles";
+import {
+  buttonStyles,
+  defaultStyles,
+  formStyles,
+} from "@components/style/styles";
 import { Router } from "@vaadin/router";
-import { Trip, TripBody } from "@core/modules/trips/types";
+import { Trip, TripBody } from "@core/modules/trips/Trip.types";
 import { AxiosResponse } from "axios";
 
 import "@components/design/LoadingIndicator";
 import "@components/design/ErrorView";
-import { getTrips } from "@core/modules/trips/api";
+import { getTrips } from "@core/modules/trips/Trip.api";
 
 @customElement("trip-form")
 class TripForm extends LitElement {
