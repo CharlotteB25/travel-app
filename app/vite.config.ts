@@ -10,4 +10,13 @@ export default defineConfig({
       "@styles": path.resolve(__dirname, "./src/style"),
     },
   },
+  server: {
+    proxy: {
+      "/api": {
+        target: "http://localhost:3000", // Your backend server
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ""),
+      },
+    },
+  },
 });

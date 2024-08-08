@@ -22,7 +22,9 @@
 
     "paths": {
       "@components/*": ["./src/components/*"],
-      "@core/*": ["./src/core/*"]
+      "@core/*": ["./src/core/*"],
+      "@assets/*": ["./src/assets/*"],
+      "@styles/*": ["./src/style/*"]
     }
   },
   "include": ["src"]

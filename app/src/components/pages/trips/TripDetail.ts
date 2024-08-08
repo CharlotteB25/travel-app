@@ -59,7 +59,8 @@ class TripDetail extends LitElement {
       return html`<loading-indicator></loading-indicator>`;
     }
 
-    return html`<h2>${trip.title}</h2>`;
+    return html`<h2>${trip.title}</h2>
+      <p>detail page</p>`;
   }
 }
 

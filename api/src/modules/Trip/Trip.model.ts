@@ -1,8 +1,9 @@
 import { NextFunction } from "express";
 import mongoose from "mongoose";
 import validateModel from "../../validation/validateModel";
+import { Trip } from "./Trip.types";
 
-const tripSchema = new mongoose.Schema(
+const tripSchema = new mongoose.Schema<Trip>(
   {
     title: {
       type: String,
@@ -46,11 +47,11 @@ const tripSchema = new mongoose.Schema(
   }
 );
 
-tripSchema.pre("save", function (next) {
-  validateModel(this);
-  next();
-});
+// tripSchema.pre("save", function (next) {
+//   validateModel(this);
+//   next();
+// });
 
-const Trip = mongoose.model("Trip", tripSchema);
+const TripModel = mongoose.model<Trip>("Trip", tripSchema);
 
-export default Trip;
+export default TripModel;

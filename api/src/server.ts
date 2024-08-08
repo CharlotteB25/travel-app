@@ -3,8 +3,9 @@ import "dotenv/config";
 import mongoose from "mongoose";
 import app from "./app";
 import { Server } from "http";
+import UserModel from "./modules/User/User.model";
 
-const port: number = parseInt(process.env.PORT ?? "3002");
+const port: number = parseInt(process.env.PORT ?? "3003");
 
 //connect to mongo
 if (process.env.MONGO_CONNECTION) {
@@ -18,15 +19,10 @@ if (process.env.MONGO_CONNECTION) {
         console.log(`Server is running on port http://localhost:${port}`);
       });
 
-      /*  const newDocument = new Trip({
-        title: "Winter Vacation",
-        description: "Skiing with my family",
-        location: "Austria",
-        startDate: new Date(),
-        endDate: new Date(),
-        activity: ["skiing", "walking"],
-        expenses: [100, 200, 50],
-        notes: "Enjoyed hiking the most",
+      /*   const newDocument = new UserModel({
+        email: "charbill@gmail.com",
+        password: "password",
+        name: "Char",
       });
 
       newDocument

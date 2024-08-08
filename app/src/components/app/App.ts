@@ -1,29 +1,17 @@
-import { LitElement, css, html } from "lit";
+import { LitElement, html } from "lit";
 import { customElement } from "lit/decorators.js";
 
 import "@components/design/Navigation";
 import "@components/design/Container";
+import { defaultStyles } from "@styles/styles";
 
 @customElement("my-app")
 class App extends LitElement {
   render() {
-    return html`
-      <app-navigation></app-navigation>
-      <section class="content">
-        <container>
-          <slot></slot>
-        </container>
-      </section>
-    `;
+    return html`<slot></slot> `;
   }
 
-  static styles = css`
-    :host {
-      display: grid;
-      height: 100vh;
-      grid-template-columns: 14rem auto;
-    }
-  `;
+  static styles = [defaultStyles];
 }
 
 export default App;

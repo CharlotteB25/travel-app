@@ -11,17 +11,70 @@ const routes = [
     component: "my-app",
     children: [
       {
-        path: "trips",
-        component: "trip-overview",
+        path: "/",
+        component: "auth-container",
         action: async () => {
-          await import("@components/trips/TripOverview");
+          await import("@components/auth/AuthContainer");
         },
+        children: [
+          {
+            path: "/",
+            component: "app-home",
+            action: async () => {
+              await import("@components/pages/home/home");
+            },
+          },
+          {
+            path: "logs",
+            component: "log-overview",
+            action: async () => {
+              await import("@components/pages/logs/LogOverview");
+            },
+          },
+          {
+            path: "trips",
+            component: "trip-overview",
+            action: async () => {
+              await import("@components/pages/trips/TripOverview");
+            },
+          },
+          {
+            path: "trips/create",
+            component: "trip-create",
+            action: async () => {
+              await import("@components/pages/trips/TripCreate");
+            },
+          },
+          {
+            path: "trips/:id",
+            component: "trip-detail-container",
+            action: async () => {
+              await import("@components/pages/trips/TripDetailContainer");
+            },
+            children: [
+              {
+                path: "/",
+                component: "trip-detail",
+                action: async () => {
+                  await import("@components/pages/trips/TripDetail");
+                },
+              },
+              {
+                path: "/edit",
+                component: "trip-edit",
+                action: async () => {
+                  await import("@components/pages/trips/TripEdit");
+                },
+              },
+            ],
+          },
+        ],
       },
       {
-        path: "trips/:id",
-        component: "trip-detail",
+        path: "login",
+        component: "login-page",
         action: async () => {
-          await import("@components/trips/TripDetail");
+          await import("@components/auth/Login");
         },
       },
     ],
