@@ -25,18 +25,6 @@ const tripSchema = new mongoose.Schema<Trip>(
       type: Date,
       required: true,
     },
-    activity: [
-      {
-        type: String,
-        required: true,
-      },
-    ],
-    expenses: [
-      {
-        type: Number,
-        required: true,
-      },
-    ],
     notes: {
       type: String,
       required: true,

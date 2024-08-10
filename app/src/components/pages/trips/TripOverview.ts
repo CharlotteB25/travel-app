@@ -8,13 +8,13 @@ import "@components/design/ErrorView";
 import "@components/design/Button/Button";
 import "@components/design/Header/PageHeader";
 import "@components/design/Typography/PageTitle";
-import { defaultStyles } from "@components/style/styles";
+import { defaultStyles } from "../../style/styles";
 
 @customElement("trip-overview")
 class TripOverview extends LitElement {
   @property()
   isLoading: boolean = false;
-  @property({ type: Array })
+  @property()
   trips: Array<Trip> | null = null;
   @property()
   error: string | null = null;
@@ -25,39 +25,36 @@ class TripOverview extends LitElement {
     this.fetchItems();
   }
 
-  fetchItems() {
+  async fetchItems() {
     this.isLoading = true;
-    getTrips()
-      .then(({ data }) => {
-        this.trips = data;
-        this.isLoading = false;
-      })
-      .catch((error) => {
-        this.error = error.message;
-        this.isLoading = false;
-      });
+    try {
+      const { data } = await getTrips();
+      this.trips = data;
+      this.error = null;
+    } catch (err) {
+      this.error = "Failed to fetch trips";
+      this.trips = null;
+    } finally {
+      this.isLoading = false;
+    }
   }
 
   render() {
     const { isLoading, trips, error } = this;
-
-    if (!Array.isArray(trips)) {
-      return html`<p>Something went wrong</p>`;
-    }
 
     let content = html``;
     if (error) {
       content = html`<error-view error=${error} />`;
     } else if (isLoading || !trips) {
       content = html`<loading-indicator></loading-indicator>`;
-    } else if (trips.length === 0) {
-      content = html`<p>no trips yet</p>`;
+    } else if (trips && trips.length > 0) {
+      content = html`<p>No trips yet</p>`;
     } else {
       content = html`<ul>
         ${trips.map((c) => {
           return html`
             <li>
-              <a href="/trips/${c._id}">${c.location}</a>
+              <a href="/trips/${c._id}">${c.title}</a>
             </li>
           `;
         })}
@@ -66,7 +63,7 @@ class TripOverview extends LitElement {
 
     return html` <app-page-header>
         <app-page-title>Trips</app-page-title>
-        <app-button href="/trip/create">Add Trip</app-button>
+        <app-button href="/clients/create">Add trip</app-button>
       </app-page-header>
       ${content}`;
   }

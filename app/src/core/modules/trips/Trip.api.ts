@@ -1,4 +1,4 @@
-import { Trip, TripBody } from "./types";
+import { Trip, TripBody } from "./Trip.types";
 import { API } from "@core/network/api";
 
 const getTrips = () => {
@@ -10,7 +10,7 @@ const getTripById = (id: string) => {
 };
 
 const createTrip = (trip: TripBody) => {
-  return API.post<Trip>("/trips/add", trip);
+  return API.post<Trip>("/trips", trip);
 };
 
 const updateTrip = (id: string, trip: TripBody) => {

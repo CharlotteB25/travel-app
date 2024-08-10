@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+import mongoose from "mongoose";
 import Trip from "./Trip.model";
 import NotFoundError from "../../middleware/error/NotFoundError";
 
@@ -14,6 +15,9 @@ const getTrips = async (req: Request, res: Response, next: NextFunction) => {
 const getTripById = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new NotFoundError("Invalid Trip ID");
+    }
     const trip = await Trip.findById(id);
     if (!trip) {
       throw new NotFoundError("Trip not found");
@@ -29,7 +33,7 @@ const createTrip = async (req: Request, res: Response, next: NextFunction) => {
     const trip = new Trip(req.body);
 
     const result = await trip.save();
-    res.status(200).json(result);
+    res.status(201).json(result);
   } catch (err) {
     next(err);
   }
