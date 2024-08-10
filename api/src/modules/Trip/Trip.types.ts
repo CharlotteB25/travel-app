@@ -1,7 +1,7 @@
 import { Document, ObjectId } from "mongoose";
 
 export type Trip = Document & {
-  _id?: ObjectId;
+  _id?: string;
   title: string;
   description: string;
   location: string;

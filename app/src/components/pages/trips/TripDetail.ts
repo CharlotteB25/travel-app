@@ -24,14 +24,14 @@ class TripDetail extends LitElement {
     const { trip } = tripContextValue;
 
     if (!trip) {
-      return html``;
+      return html`<h1>No trip</h1>`;
     }
 
     return html`
       <app-page-header>
         <app-page-title>${trip.location}</app-page-title>
         <app-button href="/trips/${trip._id}/edit" color="secondary"
-          >Aanpassen</app-button
+          >Edit</app-button
         >
       </app-page-header>
     `;

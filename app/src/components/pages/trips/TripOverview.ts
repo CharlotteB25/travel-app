@@ -47,14 +47,14 @@ class TripOverview extends LitElement {
       content = html`<error-view error=${error} />`;
     } else if (isLoading || !trips) {
       content = html`<loading-indicator></loading-indicator>`;
-    } else if (trips && trips.length > 0) {
-      content = html`<p>No trips yet</p>`;
+    } else if (trips.length === 0) {
+      content = html`<p>no trips</p>`;
     } else {
       content = html`<ul>
-        ${trips.map((c) => {
+        ${trips.map((trip) => {
           return html`
             <li>
-              <a href="/trips/${c._id}">${c.title}</a>
+              <a href="/trips/${trip._id}">${trip.title}</a>
             </li>
           `;
         })}
@@ -63,7 +63,7 @@ class TripOverview extends LitElement {
 
     return html` <app-page-header>
         <app-page-title>Trips</app-page-title>
-        <app-button href="/clients/create">Add trip</app-button>
+        <app-button href="/trips/create">Add trip</app-button>
       </app-page-header>
       ${content}`;
   }
