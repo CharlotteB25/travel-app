@@ -7,7 +7,7 @@ import UserModel from "../../modules/User/User.model";
 
 const jwtOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: process.env.JWT_SECRET || "defaultSecretKey",
+  secretOrKey: process.env.JWT_SECRET || "your-secret-key",
 };
 
 // jwt strategy to check jwt token

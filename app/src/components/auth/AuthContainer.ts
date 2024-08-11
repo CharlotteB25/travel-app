@@ -50,7 +50,7 @@ class AuthContainer extends LitElement {
     );
 
     // fetch user
-    this.isLoading = true;
+    /*   this.isLoading = true;
     getCurrentUser()
       .then(({ data }) => {
         this.user = data;
@@ -61,6 +61,7 @@ class AuthContainer extends LitElement {
       .finally(() => {
         this.isLoading = false;
       });
+  } */
   }
 
   render() {
@@ -70,9 +71,9 @@ class AuthContainer extends LitElement {
       return html`<error-view error=${error} />`;
     }
 
-    if (isLoading || !user) {
-      return html`<loading-indicator></loading-indicator>`;
-    }
+    // if (isLoading || !user) {
+    //   return html`<loading-indicator></loading-indicator>`;
+    // }
 
     return html`
       <app-navigation></app-navigation>

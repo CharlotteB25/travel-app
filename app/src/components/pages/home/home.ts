@@ -52,9 +52,9 @@ class Home extends LitElement {
     } else {
       content = html`<app-grid>
         <app-amount-card
-          title="Klanten"
+          title="trips"
           amount=${data.trips}
-          href="/clients"
+          href="/trips"
         ></app-amount-card>
       </app-grid>`;
     }

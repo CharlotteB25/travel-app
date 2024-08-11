@@ -2,7 +2,6 @@ import { Document } from "mongodb";
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import { User } from "./User.types";
-import jwt from "jsonwebtoken";
 
 // schema
 const userSchema = new mongoose.Schema(
@@ -61,12 +60,6 @@ userSchema.methods = {
           }
         }
       );
-    });
-  },
-  generateToken: function () {
-    const user = this;
-    return jwt.sign({ _id: user._id }, process.env.JWT_SECRET ?? "", {
-      expiresIn: 60 * 120,
     });
   },
 };

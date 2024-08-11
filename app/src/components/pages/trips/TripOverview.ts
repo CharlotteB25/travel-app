@@ -29,6 +29,7 @@ class TripOverview extends LitElement {
     this.isLoading = true;
     try {
       const { data } = await getTrips();
+      console.log(data);
       this.trips = data;
       this.error = null;
     } catch (err) {
