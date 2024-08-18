@@ -3,7 +3,7 @@ import { customElement } from "lit/decorators.js";
 import { defaultStyles } from "@components/style/styles";
 import { createTrip } from "@core/modules/trips/Trip.api";
 
-import "@components/shared/trips/form/TripForm";
+import "@components/pages/trips/form/TripForm";
 import "@components/design/Typography/PageTitle";
 import "@components/design/Header/PageHeader";
 
@@ -11,7 +11,7 @@ import "@components/design/Header/PageHeader";
 class TripCreate extends LitElement {
   render() {
     return html` <app-page-header>
-        <app-page-title>Klant toevoegen</app-page-title>
+        <app-page-title>add trip</app-page-title>
       </app-page-header>
       <trip-form .method=${createTrip}></trip-form>`;
   }

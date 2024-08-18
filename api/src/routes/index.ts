@@ -1,12 +1,21 @@
-import { Express } from "express";
+import { Express, Router } from "express";
 import tripRoutes from "../modules/Trip/Trip.routes";
-import app from "../app";
 import { errorHandler } from "../middleware/error/errorHandlerMiddleware";
+import userPublicRoutes from "../modules/User/User.public.routes";
+import userPrivateRoutes from "../modules/User/User.private.routes";
+
+import { authJwt } from "../middleware/auth/authMiddleware";
 
 const registerRoutes = (app: Express) => {
-  app.use("/", tripRoutes);
+  app.use("/", userPublicRoutes);
 
-  //Must be placed AFTER all routes
+  const authRoutes = Router();
+  authRoutes.use("/", userPrivateRoutes);
+  authRoutes.use("/", tripRoutes);
+
+  app.use(authJwt, authRoutes);
+
+  // should be placed AFTER all routes
   app.use(errorHandler);
 };
 

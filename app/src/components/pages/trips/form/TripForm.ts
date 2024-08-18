@@ -13,17 +13,19 @@ import { customElement, property } from "lit/decorators.js";
 class TripForm extends LitElement {
   @property()
   isLoading: boolean = false;
+
   @property()
   error: string | null = null;
+
   @property()
   submitLabel: string = "Add";
+
   @property()
   method: ((trip: TripBody) => Promise<AxiosResponse<Trip>>) | null = null;
 
   @property()
   data: TripBody = {
     title: "",
-    description: "",
     location: "",
     activity: "",
     expenses: "",
@@ -40,9 +42,9 @@ class TripForm extends LitElement {
     }
 
     const formData = new FormData(event.target as HTMLFormElement);
-    const trip = {
+
+    const trip: TripBody = {
       title: formData.get("title") as string,
-      description: formData.get("description") as string,
       location: formData.get("location") as string,
       activity: formData.get("activity") as string,
       expenses: formData.get("expenses") as string,
@@ -51,13 +53,19 @@ class TripForm extends LitElement {
       endDate: formData.get("endDate") as string,
     };
 
+    console.log("Submitting trip data:", trip); // Debug log
+
     this.isLoading = true;
     this.method(trip)
       .then(({ data }) => {
         Router.go(`/trips/${data._id}`);
       })
       .catch((error) => {
-        this.error = error;
+        this.error = error.message || "An error occurred";
+        console.error("Error creating trip:", error); // Debug log
+      })
+      .finally(() => {
+        this.isLoading = false;
       });
   };
 
@@ -65,43 +73,79 @@ class TripForm extends LitElement {
     const { isLoading, handleSubmit, data, submitLabel, error } = this;
 
     return html`
-      ${error ? html`<error-view error=${error} />` : ""}
+      ${error ? html`<error-view .error=${error}></error-view>` : ""}
       <form @submit=${handleSubmit}>
-        <h3>Algemeen</h3>
+        <h3>Information:</h3>
         <div class="form-control">
-          <label class="form-control__label" for="destination"
-            >Bestemming</label
-          >
+          <label class="form-control__label" for="title">Title:</label>
           <input
             class="form-control__input"
             type="text"
-            destination="destination"
-            id="destination"
+            name="title"
+            id="title"
+            .value=${data.title}
+            placeholder="Title"
+            ?disabled=${isLoading}
+            required
+          />
+        </div>
+        <div class="form-control">
+          <label class="form-control__label" for="location">Location</label>
+          <input
+            class="form-control__input"
+            type="text"
+            name="location"
+            id="location"
             .value=${data.location}
             placeholder="New York"
             ?disabled=${isLoading}
             required
           />
         </div>
-        <h3>Contact persoon</h3>
         <div class="form-control">
-          <label class="form-control__label" for="country">Voornaam</label>
+          <label class="form-control__label" for="activity">Activities:</label>
           <input
             class="form-control__input"
             type="text"
-            name="country"
-            id="country"
-            .value=${data.title}
-            placeholder="America"
+            name="activity"
+            id="activity"
+            .value=${data.activity}
+            placeholder="Activities"
             ?disabled=${isLoading}
             required
           />
         </div>
         <div class="form-control">
-          <label class="form-control__label" for="startDate">Achternaam</label>
+          <label class="form-control__label" for="expenses">Expenses:</label>
           <input
             class="form-control__input"
             type="text"
+            name="expenses"
+            id="expenses"
+            .value=${data.expenses}
+            placeholder="Expenses"
+            ?disabled=${isLoading}
+            required
+          />
+        </div>
+        <div class="form-control">
+          <label class="form-control__label" for="notes">Notes:</label>
+          <input
+            class="form-control__input"
+            type="text"
+            name="notes"
+            id="notes"
+            .value=${data.notes}
+            placeholder="Notes"
+            ?disabled=${isLoading}
+            required
+          />
+        </div>
+        <div class="form-control">
+          <label class="form-control__label" for="startDate">Start Date:</label>
+          <input
+            class="form-control__input"
+            type="date"
             name="startDate"
             id="startDate"
             .value=${data.startDate}
@@ -111,10 +155,10 @@ class TripForm extends LitElement {
           />
         </div>
         <div class="form-control">
-          <label class="form-control__label" for="endDate">Email</label>
+          <label class="form-control__label" for="endDate">End Date:</label>
           <input
             class="form-control__input"
-            type="text"
+            type="date"
             name="endDate"
             id="endDate"
             .value=${data.endDate}

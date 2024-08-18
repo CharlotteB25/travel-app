@@ -5,7 +5,7 @@ import app from "./app";
 import { Server } from "http";
 import UserModel from "./modules/User/User.model";
 
-const port: number = parseInt(process.env.PORT ?? "3003");
+const port: number = parseInt(process.env.PORT ?? "3002");
 
 //connect to mongo
 if (process.env.MONGO_CONNECTION) {

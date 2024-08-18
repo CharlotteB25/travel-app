@@ -9,10 +9,6 @@ const tripSchema = new mongoose.Schema<Trip>(
       type: String,
       required: true,
     },
-    description: {
-      type: String,
-      required: true,
-    },
     location: {
       type: String,
       required: true,
@@ -25,19 +21,15 @@ const tripSchema = new mongoose.Schema<Trip>(
       type: Date,
       required: true,
     },
-    activity: [
-      {
-        type: String,
-        required: true,
-      },
-    ],
-    expenses: [
-      {
-        type: Number,
-        required: true,
-      },
-    ],
     notes: {
+      type: String,
+      required: true,
+    },
+    expenses: {
+      type: String,
+      required: true,
+    },
+    activity: {
       type: String,
       required: true,
     },
