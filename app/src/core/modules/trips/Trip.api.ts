@@ -1,4 +1,4 @@
-import { Trip, TripBody } from "./types";
+import { Trip, TripBody } from "./Trip.types";
 import { API } from "@core/network/api";
 
 const getTrips = () => {
