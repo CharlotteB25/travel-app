@@ -3,11 +3,12 @@ export type Trip = {
   title: string;
   //description: string;
   location: string;
-  startDate: string;
-  endDate: string;
+  startDate: Date;
+  endDate: Date;
   activity: string;
   expenses: string;
   notes: string;
+  userId: string;
 };
 
 export type TripBody = Omit<Trip, "_id">;

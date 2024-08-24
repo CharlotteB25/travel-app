@@ -79,6 +79,22 @@ export const buttonStyles = css`
     text-decoration: none;
   }
 
+  .btn-tertiary {
+    display: inline-block;
+    margin: 0.5rem 0 0.75rem 0;
+    padding: 0.75rem 1rem;
+
+    background-color: var(--tertiary);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    font-weight: var(--font-weight-bold);
+
+    cursor: pointer;
+
+    text-decoration: none;
+  }
+
   .btn-primary:hover {
     opacity: 0.9;
   }

@@ -17,4 +17,8 @@ const updateTrip = (id: string, trip: TripBody) => {
   return API.patch<Trip>(`/trips/${id}`, trip);
 };
 
-export { getTrips, getTripById, createTrip, updateTrip };
+const deleteTrip = (id: string) => {
+  return API.delete(`/trips/${id}`);
+};
+
+export { getTrips, getTripById, createTrip, updateTrip, deleteTrip };

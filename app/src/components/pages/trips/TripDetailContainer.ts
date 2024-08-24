@@ -47,6 +47,8 @@ class TripDetailContainer extends LitElement {
     }
 
     this.isLoading = true;
+
+    //this is to get the trip by id from the API and set the tripContext to the response to be able to use it in the child components of this container
     getTripById(this.location.params.id)
       .then(({ data }) => {
         this.tripContext = {

@@ -10,4 +10,5 @@ export type Trip = Document & {
   notes: string;
   expenses: string;
   activity: string;
+  userId: ObjectId;
 };

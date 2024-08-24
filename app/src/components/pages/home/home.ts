@@ -6,6 +6,7 @@ import { getTrips } from "@core/modules/trips/Trip.api";
 import { Trip } from "@core/modules/trips/Trip.types";
 import userContext from "@components/auth/userContext";
 import { consume } from "@lit/context";
+import { getCurrentUser } from "@core/modules/user/User.api"; // Import the necessary API methods
 
 import "@components/design/LoadingIndicator";
 import "@components/design/ErrorView";
@@ -19,12 +20,16 @@ import "@components/design/Grid/Grid";
 class Home extends LitElement {
   @property()
   isLoading: boolean = false;
+
   @property()
   trips: Array<Trip> | null = null;
+
   @property()
   error: string | null = null;
+
   @property()
   data: DashboardData | null = null;
+
   @consume({ context: userContext, subscribe: true })
   @property({ attribute: false })
   public user?: User | null;
@@ -32,21 +37,34 @@ class Home extends LitElement {
   // called when the element is first connected to the document’s DOM
   connectedCallback(): void {
     super.connectedCallback();
-    this.fetchItems();
+    this.fetchUserData();
   }
 
-  fetchItems() {
+  async fetchUserData() {
     this.isLoading = true;
-    // todo in api
-    getTrips()
-      .then(({ data }) => {
-        this.trips = data;
-        this.isLoading = false;
-      })
-      .catch((error) => {
-        this.error = error.message;
-        this.isLoading = false;
-      });
+    try {
+      // Fetch the current user data
+      const userResponse = await getCurrentUser();
+      this.user = userResponse.data;
+      // console.log(this.user);
+
+      // Fetch trips for the current user using the userId from the user data
+      if (this.user && this.user._id) {
+        const tripsResponse = await getTrips();
+        this.trips = tripsResponse.data;
+      } else {
+        this.error = "User data is missing or invalid";
+        this.trips = null;
+      }
+
+      this.error = null;
+    } catch (error: any) {
+      this.error = "Failed to load user data or trips";
+      this.user = null;
+      this.trips = null;
+    } finally {
+      this.isLoading = false;
+    }
   }
 
   render() {
@@ -54,13 +72,13 @@ class Home extends LitElement {
 
     let content = html``;
     if (error) {
-      content = html`<error-view error=${error} />`;
+      content = html`<error-view error=${error}></error-view>`;
     } else if (isLoading || !trips) {
       content = html`<loading-indicator></loading-indicator>`;
     } else if (trips.length === 0) {
-      content = html`<p>Nog geen projecten</p>`;
+      content = html`<p>No trips found</p>`;
     } else {
-      content = html` <app-grid>
+      content = html`<app-grid>
         ${trips.map((c) => {
           return html`<li>
             <app-card href="/projects/${c._id}">${c.title}</app-card>

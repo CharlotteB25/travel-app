@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import app from "./app";
 import { Server } from "http";
 import UserModel from "./modules/User/User.model";
+import TripModel from "./modules/Trip/Trip.model";
 
 const port: number = parseInt(process.env.PORT ?? "3002");
 
@@ -19,10 +20,15 @@ if (process.env.MONGO_CONNECTION) {
         console.log(`Server is running on port http://localhost:${port}`);
       });
 
-      /*   const newDocument = new UserModel({
-        email: "charbill@gmail.com",
-        password: "password",
-        name: "Char",
+      /*const newDocument = new TripModel({
+        title: "Trip to Paris",
+        location: "Paris",
+        startDate: new Date("2022-01-01"),
+        endDate: new Date("2022-01-10"),
+        notes: "A trip to Paris",
+        expenses: "1000",
+        activity: "Sightseeing",
+        userId: "66c9d365445b9dcad00e39fd",
       });
 
       newDocument
@@ -33,7 +39,8 @@ if (process.env.MONGO_CONNECTION) {
         .catch((err) => {
           console.error("Error saving document:", err);
         });
- */
+        */
+
       process.on("SIGINT", () => stopServer(server));
       process.on("SIGTERM", () => stopServer(server));
     })
