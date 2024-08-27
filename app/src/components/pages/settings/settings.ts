@@ -1,4 +1,4 @@
-import { LitElement, html, css } from "lit";
+import { LitElement, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { defaultStyles } from "@components/style/styles";
 import { UserBody } from "@core/modules/user/User.types";

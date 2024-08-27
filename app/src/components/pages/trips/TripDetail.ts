@@ -27,7 +27,7 @@ class TripDetail extends LitElement {
     const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${location}&units=metric&appid=${apiKey}`;
 
     try {
-      // const response = await fetch(apiUrl);
+      const response = await fetch(apiUrl); // Correctly define 'response' here
       if (!response.ok) {
         const errorDetails = await response.json();
         console.error(
@@ -39,7 +39,7 @@ class TripDetail extends LitElement {
       this.weatherData = await response.json();
       console.log("Fetched weather data:", this.weatherData); // Log the fetched weather data
     } catch (error) {
-      //console.error("Failed to fetch weather data:", error);
+      console.error("Failed to fetch weather data:", error);
       this.weatherData = null;
     }
   }
@@ -47,7 +47,7 @@ class TripDetail extends LitElement {
   // Method to handle trip deletion
   async handleDelete() {
     if (this.tripContextValue?.trip) {
-      //const { _id } = this.tripContextValue.trip;
+      const { _id } = this.tripContextValue.trip;
 
       try {
         // Call the API to delete the trip
@@ -79,7 +79,7 @@ class TripDetail extends LitElement {
   // Retry mechanism to fetch weather data
   async retryFetchWeather(retries: number, delay: number = 500) {
     if (this.tripContextValue?.trip?.location) {
-      //console.log("Fetching weather for:", this.tripContextValue.trip.location);
+      console.log("Fetching weather for:", this.tripContextValue.trip.location);
       this.fetchWeather(this.tripContextValue.trip.location);
     } else if (retries > 0) {
       console.warn(
@@ -94,7 +94,7 @@ class TripDetail extends LitElement {
   }
 
   render() {
-    //console.log("tripContextValue:", this.tripContextValue); // Check if context is available
+    console.log("tripContextValue:", this.tripContextValue); // Check if context is available
 
     const { tripContextValue, weatherData } = this;
 
@@ -139,7 +139,6 @@ class TripDetail extends LitElement {
                 `
               : html`
                   <p>Failed to load weather data. Please try again later.</p>
-                  <p>Error: ${weatherData?.message || "Unknown error"}</p>
                 `}
           </div>
         </div>
@@ -194,9 +193,6 @@ class TripDetail extends LitElement {
       .trip-details li {
         margin-bottom: 1rem;
         color: #333; /* Dark grey text */
-      }
-
-      .trip-details li strong {
       }
 
       .weather-info {

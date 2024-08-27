@@ -46,9 +46,6 @@ export const defaultStyles = css`
   }
 `;
 
-// styles we need for the button and input components since they need to be direct children of form
-import { css } from "lit";
-
 export const buttonStyles = css`
   .btn-primary,
   .btn-secondary,
