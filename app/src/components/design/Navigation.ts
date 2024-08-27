@@ -3,7 +3,7 @@ import { User } from "@core/modules/user/User.types";
 import { consume } from "@lit/context";
 import { LitElement, css, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { defaultStyles } from "../style/styles";
+import { defaultStyles, buttonStyles } from "../style/styles";
 import userContext from "@components/auth/userContext";
 
 //import "@components/design/Logo/Logo";
@@ -47,7 +47,6 @@ class Navigation extends LitElement {
     const { pathname } = location;
 
     return html`<header class="header">
-      <a class="header__logo" href="/"><app-logo /></a>
       <nav class="header__nav">
         <ul class="main-nav">
           <li
@@ -74,7 +73,7 @@ class Navigation extends LitElement {
         </ul>
       </nav>
       <p class="header__user">${this.user?.name}</p>
-      <button class="header__logout" @click=${this.handleLogout}>
+      <button class="btn-tertiary" @click=${this.handleLogout}>
         Uitloggen
       </button>
     </header>`;
@@ -82,6 +81,7 @@ class Navigation extends LitElement {
 
   static styles = [
     defaultStyles,
+    buttonStyles,
     css`
       .header {
         display: flex;
@@ -102,6 +102,7 @@ class Navigation extends LitElement {
       }
 
       .header__user {
+        font-size: 1.25rem;
         margin-top: auto;
         overflow-wrap: break-word;
         word-wrap: break-word;

@@ -87,3 +87,5 @@ class TripDetailContainer extends LitElement {
 }
 
 export default TripDetailContainer;
+
+//the point of this detail container is to fetch the trip by id from the API and then provide it to the child components of this container. should have added the weather api call here as well but I didn't have time to do that. and should have added the delete trip functionality here as well but I didn't have time to do that. I will do that in the future. so that i can keep the detail page tidy and clean.

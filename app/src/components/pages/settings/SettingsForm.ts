@@ -2,6 +2,15 @@ import { LitElement, html, css } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { UserBody } from "@core/modules/user/User.types"; // Import UserBody type
 import { AxiosResponse } from "axios";
+import {
+  defaultStyles,
+  inputStyles,
+  buttonStyles,
+} from "@components/style/styles";
+
+import "@components/design/LoadingIndicator";
+import "@components/design/ErrorView";
+import "@components/design/Button/Button";
 
 @customElement("settings-form")
 class SettingsForm extends LitElement {
@@ -71,8 +80,9 @@ class SettingsForm extends LitElement {
       ${successMessage ? html`<p class="success">${successMessage}</p>` : ""}
       <form @submit=${handleSubmit}>
         <div class="form-control">
-          <label for="name">Name:</label>
+          <label class="form-control__label" for="name">Name:</label>
           <input
+            class="form-control__input"
             type="text"
             name="name"
             id="name"
@@ -82,8 +92,9 @@ class SettingsForm extends LitElement {
           />
         </div>
         <div class="form-control">
-          <label for="email">Email:</label>
+          <label class="form-control__label" for="email">Email:</label>
           <input
+            class="form-control__input"
             type="email"
             name="email"
             id="email"
@@ -93,8 +104,9 @@ class SettingsForm extends LitElement {
           />
         </div>
         <div class="form-control">
-          <label for="password">Password:</label>
+          <label class="form-control__label" for="password">Password:</label>
           <input
+            class="form-control__input"
             type="password"
             name="password"
             id="password"
@@ -103,31 +115,14 @@ class SettingsForm extends LitElement {
             required
           />
         </div>
-        <button type="submit" ?disabled=${isLoading}>${submitLabel}</button>
+        <button class="btn-primary" type="submit" ?disabled=${isLoading}>
+          ${submitLabel}
+        </button>
       </form>
     `;
   }
 
-  static styles = css`
-    .form-control {
-      margin-bottom: 1rem;
-    }
-    .form-control label {
-      display: block;
-      margin-bottom: 0.5rem;
-    }
-    .form-control input {
-      width: 100%;
-      padding: 0.5rem;
-      box-sizing: border-box;
-    }
-    .error {
-      color: red;
-    }
-    .success {
-      color: green;
-    }
-  `;
+  static styles = [defaultStyles, inputStyles, buttonStyles];
 }
 
 export default SettingsForm;

@@ -3,7 +3,7 @@ import { customElement } from "lit/decorators.js";
 import { defaultStyles } from "@components/style/styles";
 
 @customElement("app-page-title")
-class PageTitle extends LitElement {
+class PageSubheading extends LitElement {
   render() {
     return html`<h1><slot></slot></h1>`;
   }
@@ -13,11 +13,11 @@ class PageTitle extends LitElement {
     css`
       h1 {
         color: var(--primary-900);a
-        font-size: 1.6rem;
+        font-size: 1.3rem;
         margin: 1rem 0;
       }
     `,
   ];
 }
 
-export default PageTitle;
+export default PageSubheading;

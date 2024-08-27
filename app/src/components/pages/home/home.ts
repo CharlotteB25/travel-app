@@ -46,12 +46,18 @@ class Home extends LitElement {
       // Fetch the current user data
       const userResponse = await getCurrentUser();
       this.user = userResponse.data;
-      // console.log(this.user);
 
       // Fetch trips for the current user using the userId from the user data
       if (this.user && this.user._id) {
         const tripsResponse = await getTrips();
-        this.trips = tripsResponse.data;
+        const allTrips = tripsResponse.data;
+
+        // Filter trips to only include those with endDate later than today
+        const today = new Date();
+        this.trips = allTrips.filter((trip) => {
+          const tripStartDate = new Date(trip.startDate);
+          return tripStartDate >= today;
+        });
       } else {
         this.error = "User data is missing or invalid";
         this.trips = null;
@@ -76,12 +82,12 @@ class Home extends LitElement {
     } else if (isLoading || !trips) {
       content = html`<loading-indicator></loading-indicator>`;
     } else if (trips.length === 0) {
-      content = html`<p>No trips found</p>`;
+      content = html`<p>No upcoming trips found</p>`;
     } else {
       content = html`<app-grid>
-        ${trips.map((c) => {
+        ${trips.map((trip) => {
           return html`<li>
-            <app-card href="/projects/${c._id}">${c.title}</app-card>
+            <app-card href="/trips/${trip._id}">${trip.title}</app-card>
           </li>`;
         })}
       </app-grid>`;
@@ -89,8 +95,10 @@ class Home extends LitElement {
 
     return html`
       <app-page-header>
-        <app-page-title>Welcome ${this.user?.name}</app-page-title>
+        <app-page-title>Welcome, ${this.user?.name}</app-page-title>
       </app-page-header>
+      <h2>Upcoming trips:</h2>
+
       ${content}
     `;
   }

@@ -27,7 +27,7 @@ class TripDetail extends LitElement {
     const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${location}&units=metric&appid=${apiKey}`;
 
     try {
-      // const response = await fetch(apiUrl);
+      const response = await fetch(apiUrl);
       if (!response.ok) {
         const errorDetails = await response.json();
         console.error(
@@ -39,7 +39,7 @@ class TripDetail extends LitElement {
       this.weatherData = await response.json();
       console.log("Fetched weather data:", this.weatherData); // Log the fetched weather data
     } catch (error) {
-      //console.error("Failed to fetch weather data:", error);
+      console.error("Failed to fetch weather data:", error);
       this.weatherData = null;
     }
   }
@@ -47,7 +47,7 @@ class TripDetail extends LitElement {
   // Method to handle trip deletion
   async handleDelete() {
     if (this.tripContextValue?.trip) {
-      //const { _id } = this.tripContextValue.trip;
+      const { _id } = this.tripContextValue.trip;
 
       try {
         // Call the API to delete the trip
@@ -79,7 +79,7 @@ class TripDetail extends LitElement {
   // Retry mechanism to fetch weather data
   async retryFetchWeather(retries: number, delay: number = 500) {
     if (this.tripContextValue?.trip?.location) {
-      //console.log("Fetching weather for:", this.tripContextValue.trip.location);
+      console.log("Fetching weather for:", this.tripContextValue.trip.location);
       this.fetchWeather(this.tripContextValue.trip.location);
     } else if (retries > 0) {
       console.warn(
@@ -94,7 +94,7 @@ class TripDetail extends LitElement {
   }
 
   render() {
-    //console.log("tripContextValue:", this.tripContextValue); // Check if context is available
+    console.log("tripContextValue:", this.tripContextValue); // Check if context is available
 
     const { tripContextValue, weatherData } = this;
 
@@ -143,12 +143,14 @@ class TripDetail extends LitElement {
                 `}
           </div>
         </div>
-        <app-button href="/trips/${trip._id}/edit" color="secondary">
-          Edit
-        </app-button>
-        <app-button @click="${this.handleDelete}" color="tertiary">
-          ${this.submitLabel}
-        </app-button>
+        <div class="buttons">
+          <app-button href="/trips/${trip._id}/edit" color="secondary">
+            Edit
+          </app-button>
+          <app-button @click="${this.handleDelete}" color="tertiary">
+            ${this.submitLabel}
+          </app-button>
+        </div>
       </div>
     `;
   }
@@ -197,13 +199,26 @@ class TripDetail extends LitElement {
       }
 
       .trip-details li strong {
+        color: #1e3a8a; /* Dark blue for labels */
       }
 
       .weather-info {
+        background-color: #e6f2ff; /* Light blue background */
         padding: 1rem;
         border-radius: 8px;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         max-height: 100px;
+        flex-shrink: 0;
+      }
+
+      .buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+      }
+
+      .buttons app-button {
+        margin: 0;
       }
     `,
   ];

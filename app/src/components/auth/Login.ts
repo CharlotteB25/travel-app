@@ -12,12 +12,11 @@ import {
   formStyles,
 } from "@components/style/styles";
 
-import "@components/design/ErrorView";
-
 @customElement("login-page")
 class Login extends LitElement {
   @property()
   isLoading: boolean = false;
+
   @property()
   error: string | null = null;
 
@@ -37,20 +36,37 @@ class Login extends LitElement {
       })
       .catch((error) => {
         this.isLoading = false;
-        this.error = error.message;
+
+        // Handle specific error responses
+        if (error.response) {
+          const { status, data } = error.response;
+
+          if (status === 401) {
+            this.error = "Invalid email or password. Please try again.";
+          } else if (status === 404) {
+            this.error =
+              "No account found with this email. Please register first.";
+          } else {
+            this.error =
+              data.message ||
+              "An error occurred during login. Please try again.";
+          }
+        } else {
+          this.error =
+            error.message || "An unexpected error occurred. Please try again.";
+        }
       });
   }
 
   render() {
-    const { isLoading, error, handleSubmit } = this;
+    const { isLoading, error } = this;
 
     return html`
       <div class="split">
-        <img class="split__image" src="/home-image.webp" />
         <div class="split__content">
           <app-logo></app-logo>
-          ${error ? html`<error-view error=${error} />` : ""}
-          <form @submit=${handleSubmit}>
+          ${error ? html`<error-view error="${error}"></error-view>` : ""}
+          <form @submit=${this.handleSubmit}>
             <div class="form-control">
               <label class="form-control__label" for="email">Email</label>
               <input
@@ -73,6 +89,9 @@ class Login extends LitElement {
                 ?disabled=${isLoading}
                 required
               />
+            </div>
+            <div class="form-control">
+              <a href="/register">Don't have an account? Register</a>
             </div>
             <button class="btn-primary" type="submit" ?disabled=${isLoading}>
               Login
@@ -103,7 +122,7 @@ class Login extends LitElement {
         flex: 1;
         padding: 5rem 2rem;
       }
-      .form {
+      .form-control {
         margin-top: 1rem;
       }
     `,

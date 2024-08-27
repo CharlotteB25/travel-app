@@ -4,10 +4,13 @@ import { getTrips } from "@core/modules/trips/Trip.api";
 import { Trip } from "@core/modules/trips/Trip.types";
 
 import "@components/design/LoadingIndicator";
+import "@components/design/Card/Card";
 import "@components/design/ErrorView";
 import "@components/design/Button/Button";
 import "@components/design/Header/PageHeader";
 import "@components/design/Typography/PageTitle";
+import "@components/design/Grid/Grid";
+
 import { defaultStyles } from "../../style/styles";
 
 @customElement("trip-overview")
@@ -29,7 +32,7 @@ class TripOverview extends LitElement {
     this.isLoading = true;
     try {
       const { data } = await getTrips();
-      console.log(data);
+      //console.log(data);
       this.trips = data;
       this.error = null;
     } catch (err) {
@@ -51,15 +54,13 @@ class TripOverview extends LitElement {
     } else if (trips.length === 0) {
       content = html`<p>no trips</p>`;
     } else {
-      content = html`<ul>
+      content = html`<app-grid>
         ${trips.map((trip) => {
-          return html`
-            <li>
-              <a href="/trips/${trip._id}">${trip.title}</a>
-            </li>
-          `;
+          return html`<li>
+            <app-card href="/trips/${trip._id}">${trip.title}</app-card>
+          </li>`;
         })}
-      </ul>`;
+      </app-grid>`;
     }
 
     return html` <app-page-header>

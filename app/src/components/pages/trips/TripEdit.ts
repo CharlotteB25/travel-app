@@ -40,7 +40,7 @@ class TripEdit extends LitElement {
         <app-page-title>${trip.title}</app-page-title>
       </app-page-header>
       <trip-form
-        submitLabel="Edit"
+        submitLabel="Save"
         .onSuccess=${this.handleSuccess}
         .data=${trip}
         .method=${(body: TripBody) => updateTrip(trip._id, body)}

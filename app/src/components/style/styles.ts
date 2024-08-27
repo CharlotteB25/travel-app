@@ -38,6 +38,7 @@ export const defaultStyles = css`
   h5,
   h6 {
     overflow-wrap: break-word;
+    padding: 5px;
   }
 
   input {
@@ -46,56 +47,41 @@ export const defaultStyles = css`
 `;
 
 // styles we need for the button and input components since they need to be direct children of form
-export const buttonStyles = css`
-  .btn-primary {
-    display: inline-block;
-    margin: 0.5rem 0 0.75rem 0;
-    padding: 0.75rem 1rem;
+import { css } from "lit";
 
-    background-color: var(--primary);
-    color: white;
+export const buttonStyles = css`
+  .btn-primary,
+  .btn-secondary,
+  .btn-tertiary {
+    display: inline-block;
+    padding: 0.75rem 1rem;
+    margin: 0; /* Remove margin to ensure buttons sit next to each other */
     border: none;
     border-radius: var(--border-radius);
     font-weight: var(--font-weight-bold);
-
     cursor: pointer;
-
     text-decoration: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .btn-primary {
+    background-color: var(--primary);
+    color: white;
   }
 
   .btn-secondary {
-    display: inline-block;
-    margin: 0.5rem 0 0.75rem 0;
-    padding: 0.75rem 1rem;
-
     background-color: var(--secondary);
     color: white;
-    border: none;
-    border-radius: var(--border-radius);
-    font-weight: var(--font-weight-bold);
-
-    cursor: pointer;
-
-    text-decoration: none;
   }
 
   .btn-tertiary {
-    display: inline-block;
-    margin: 0.5rem 0 0.75rem 0;
-    padding: 0.75rem 1rem;
-
     background-color: var(--tertiary);
     color: white;
-    border: none;
-    border-radius: var(--border-radius);
-    font-weight: var(--font-weight-bold);
-
-    cursor: pointer;
-
-    text-decoration: none;
   }
 
-  .btn-primary:hover {
+  .btn-primary:hover,
+  .btn-secondary:hover,
+  .btn-tertiary:hover {
     opacity: 0.9;
   }
 `;
