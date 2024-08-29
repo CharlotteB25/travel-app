@@ -104,12 +104,12 @@ class TripDetail extends LitElement {
 
     const { trip } = tripContextValue;
 
-    const countdownDays = this.getCountdownDays(trip.startDate);
+    // Convert Date to string if getCountdownDays expects a string
+    const countdownDays = this.getCountdownDays(trip.startDate.toISOString());
     const countdownMessage =
       countdownDays >= 0
         ? `Countdown: ${countdownDays} days until the trip starts!`
         : "The trip has already started or ended.";
-
     return html`
       <div class="container">
         <app-page-header>
