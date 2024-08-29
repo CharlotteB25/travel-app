@@ -1,10 +1,9 @@
-import "dotenv/config";
+const dotenv = require("dotenv");
+dotenv.config();
 
 import mongoose from "mongoose";
 import app from "./app";
 import { Server } from "http";
-import UserModel from "./modules/User/User.model";
-import TripModel from "./modules/Trip/Trip.model";
 
 const port: number = parseInt(process.env.PORT ?? "3002");
 

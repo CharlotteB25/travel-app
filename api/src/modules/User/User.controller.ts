@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { AuthRequest } from "../../middleware/auth/authMiddleware";
 import TripModel from "../Trip/Trip.model";
 import User from "./User.model";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 const login = (req: Request, res: Response, next: NextFunction) => {
   const { user } = req as AuthRequest;
@@ -64,7 +64,7 @@ const getDashboard = async (
     const { user } = req as AuthRequest;
 
     // Count the number of trips for the user
-    const trips = await TripModel.countDocuments({ ownerId: user._id });
+    const trips = await TripModel.countDocuments({ userId: user._id });
 
     res.json({
       trips,
