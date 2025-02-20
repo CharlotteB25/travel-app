@@ -14,7 +14,7 @@ const isAuthenticated = (): boolean => {
 // Define the routes for your app
 const routes = [
   {
-    path: "/hello",
+    path: "/",
     component: "my-app",
     children: [
       {
