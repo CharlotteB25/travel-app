@@ -5,6 +5,7 @@ import NotFoundError from "../../middleware/error/NotFoundError";
 
 // Get all trips
 const getTrips = async (req: Request, res: Response, next: NextFunction) => {
+  console.log("🔍 Fetching all trips");
   try {
     const trips = await Trip.find();
     res.json(trips);
