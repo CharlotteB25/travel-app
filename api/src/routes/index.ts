@@ -7,14 +7,14 @@ import { authJwt } from "../middleware/auth/authMiddleware";
 
 const registerRoutes = (app: Express) => {
   // Public routes (e.g., for signup, login)
-  app.use("/", userPublicRoutes);
+  app.use("/", userPublicRoutes); // These should not require auth middleware
 
   // Authenticated routes (e.g., for user profile, trips)
   const authRoutes = Router();
-  authRoutes.use("/", userPrivateRoutes);
-  authRoutes.use("/", tripRoutes); // Add trip routes here
+  authRoutes.use("/", userPrivateRoutes); // Private routes that require auth
+  authRoutes.use("/", tripRoutes); // Trip routes that require auth
 
-  // Use JWT authentication middleware for private routes
+  // Use JWT authentication middleware ONLY for the private routes
   app.use(authJwt, authRoutes);
 
   // Error handler middleware should be placed last
