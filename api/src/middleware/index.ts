@@ -4,18 +4,28 @@ import helmet from "helmet";
 import cors from "cors";
 
 const registerMiddleware = (app: Express) => {
-  // cors
-  app.use(cors());
+  // CORS configuration: Allow only your frontend to access the backend
+  const allowedOrigins = [
+    "https://your-frontend-url.onrender.com", // Replace with your actual frontend URL
+  ];
 
-  // json
+  const corsOptions = {
+    origin: allowedOrigins,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true, // If you need to send cookies or headers
+  };
+
+  app.use(cors(corsOptions));
+
+  // JSON parsing middleware
   app.use(express.json());
 
-  // helmet
+  // Helmet for basic security
   app.use(helmet.noSniff());
   app.use(helmet.hidePoweredBy());
   app.use(helmet.xssFilter());
 
-  // compression
+  // Compression for better performance
   app.use(compression());
 };
 
