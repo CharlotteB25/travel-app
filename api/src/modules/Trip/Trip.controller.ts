@@ -3,9 +3,17 @@ import mongoose from "mongoose";
 import Trip from "./Trip.model";
 import NotFoundError from "../../middleware/error/NotFoundError";
 
-// Get all trips
+// Get all trips (only if authenticated)
 const getTrips = async (req: Request, res: Response, next: NextFunction) => {
   console.log("🔍 Fetching all trips");
+
+  // Check if user is authenticated
+  if (!req.user) {
+    return res
+      .status(401)
+      .json({ message: "Unauthorized. Please log in first." });
+  }
+
   try {
     const trips = await Trip.find();
     res.json(trips);
