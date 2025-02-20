@@ -5,6 +5,13 @@ import { router } from "@core/router";
 
 import "@components/app/App";
 
+// Function to check if the user is authenticated
+const isAuthenticated = (): boolean => {
+  const token = localStorage.getItem("authToken");
+  return !!token; // returns true if token exists, false if not
+};
+
+// Define the routes for your app
 const routes = [
   {
     path: "/",
@@ -35,6 +42,12 @@ const routes = [
             path: "trips",
             component: "trip-overview",
             action: async () => {
+              // Check if the user is authenticated before showing trips page
+              if (!isAuthenticated()) {
+                // Redirect to login page if not authenticated
+                window.location.href = "/login";
+                return;
+              }
               await import("@components/pages/trips/TripOverview");
             },
           },
@@ -42,6 +55,11 @@ const routes = [
             path: "trips/create",
             component: "trip-create",
             action: async () => {
+              // Ensure the user is authenticated before accessing trip creation page
+              if (!isAuthenticated()) {
+                window.location.href = "/login";
+                return;
+              }
               await import("@components/pages/trips/TripCreate");
             },
           },
@@ -49,6 +67,11 @@ const routes = [
             path: "trips/:id",
             component: "trip-detail-container",
             action: async () => {
+              // Check for authentication before accessing trip detail
+              if (!isAuthenticated()) {
+                window.location.href = "/login";
+                return;
+              }
               await import("@components/pages/trips/TripDetailContainer");
             },
             children: [
@@ -74,6 +97,11 @@ const routes = [
         path: "login",
         component: "login-page",
         action: async () => {
+          // Check if the user is already logged in, and if so, redirect to trips page
+          if (isAuthenticated()) {
+            window.location.href = "/trips";
+            return;
+          }
           await import("@components/auth/Login");
         },
       },
@@ -81,4 +109,5 @@ const routes = [
   },
 ];
 
+// Register routes with the router
 router.setRoutes(routes);
