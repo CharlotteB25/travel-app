@@ -6,7 +6,6 @@ export type User = {
 };
 
 export type DashboardData = {
-  duration: number;
-  projects: number;
   trips: number;
 };
+export type UserBody = Omit<User, "_id">;

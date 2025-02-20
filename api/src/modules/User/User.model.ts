@@ -1,9 +1,10 @@
 import { Document } from "mongodb";
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 import { User } from "./User.types";
 
-// schema
+// Schema
 const userSchema = new mongoose.Schema(
   {
     email: {
@@ -25,45 +26,52 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-userSchema.pre("save", function (next) {
-  const user: Document = this;
+// Pre-save hook to hash password correctly
+userSchema.pre("save", async function (next) {
+  const user = this;
 
   if (!user.isModified("password")) {
     return next();
   }
 
   try {
-    bcrypt.hash(user.password, 10, function (err: Error | null, hash: string) {
-      if (err) {
-        throw err;
-      }
-      user.password = hash;
-      return next();
-    });
+    console.log("🔄 Hashing password before saving:", user.password);
+    user.password = await bcrypt.hash(user.password, 10);
+    console.log("✅ Hashed Password Saved:", user.password);
+    return next();
   } catch (err: any) {
+    console.error("❌ Error hashing password:", err);
     return next(err);
   }
 });
 
+// Instance methods
 userSchema.methods = {
-  comparePassword: function (password: string) {
-    const user = this;
-    return new Promise((resolve, reject) => {
-      bcrypt.compare(
-        password,
-        user.password,
-        (err: Error | null, isMatch: boolean) => {
-          if (isMatch) {
-            resolve(true);
-          } else {
-            reject(err);
-          }
-        }
-      );
+  async comparePassword(password: string) {
+    console.log("🔍 Incoming Password:", password);
+    console.log("🔑 Stored Hashed Password:", this.password);
+
+    try {
+      const isMatch = await bcrypt.compare(password, this.password);
+      console.log("✅ Password Match:", isMatch);
+      return isMatch;
+    } catch (err) {
+      console.error("❌ Password comparison error:", err);
+      throw new Error("Password comparison failed");
+    }
+  },
+
+  generateToken() {
+    const token = jwt.sign({ id: this._id }, process.env.JWT_SECRET ?? "", {
+      expiresIn: "2h", // More readable expiration
     });
+
+    console.log("🔑 Generated JWT Token:", token);
+    return token;
   },
 };
 
+// Ensure password is not sent in responses
 userSchema.set("toJSON", {
   transform: function (doc, ret) {
     delete ret.password;

@@ -3,7 +3,7 @@ import { customElement } from "lit/decorators.js";
 import { defaultStyles } from "@components/style/styles";
 import { createTrip } from "@core/modules/trips/Trip.api";
 
-import "@components/shared/trips/form/TripForm";
+import "@components/pages/trips/form/TripForm";
 import "@components/design/Typography/PageTitle";
 import "@components/design/Header/PageHeader";
 

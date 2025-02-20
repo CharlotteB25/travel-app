@@ -10,6 +10,7 @@ export class Navigation extends LitElement {
         <ul class="main-nav">
           <li class="main-nav__item"><a href="/">Home</a></li>
           <li class="main-nav__item"><a href="/trips">Trips</a></li>
+          <li class="main-nav__item"><a href="/settings">Settings</a></li>
         </ul>
       </nav>
     </header>`;

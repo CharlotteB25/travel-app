@@ -6,11 +6,11 @@ import { TripContext, tripContext } from "./TripDetailContainer";
 import { TripBody } from "@core/modules/trips/Trip.types";
 import { updateTrip } from "@core/modules/trips/Trip.api";
 
-import "@components/shared/trips/form/TripForm";
+import "@components/pages/trips/form/TripForm";
 import "@components/design/Typography/PageTitle";
 import "@components/design/Header/PageHeader";
 
-@customElement("clitripent-edit")
+@customElement("trip-edit")
 class TripEdit extends LitElement {
   @consume({ context: tripContext, subscribe: true })
   @property({ attribute: false })

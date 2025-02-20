@@ -19,10 +19,10 @@ if (process.env.MONGO_CONNECTION) {
         console.log(`Server is running on port http://localhost:${port}`);
       });
 
-      /*   const newDocument = new UserModel({
-        email: "charbill@gmail.com",
+      /*const newDocument = new UserModel({
+        email: "newtest@gmail.com",
         password: "password",
-        name: "Char",
+        name: "Newtest",
       });
 
       newDocument
@@ -33,7 +33,7 @@ if (process.env.MONGO_CONNECTION) {
         .catch((err) => {
           console.error("Error saving document:", err);
         });
- */
+*/
       process.on("SIGINT", () => stopServer(server));
       process.on("SIGTERM", () => stopServer(server));
     })

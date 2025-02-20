@@ -25,6 +25,13 @@ const routes = [
             },
           },
           {
+            path: "settings",
+            component: "settings-page",
+            action: async () => {
+              await import("@components/pages/settings/settings");
+            },
+          },
+          {
             path: "trips",
             component: "trip-overview",
             action: async () => {
