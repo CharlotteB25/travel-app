@@ -2,7 +2,7 @@ import { Trip, TripBody } from "./Trip.types";
 import { API } from "@core/network/api";
 
 const getTrips = () => {
-  return API.get<Trip[]>("/trips");
+  return API.get<Trip[]>("/");
 };
 
 const getTripById = (id: string) => {
