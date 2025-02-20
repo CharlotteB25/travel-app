@@ -58,7 +58,7 @@ class Home extends LitElement {
     } else if (isLoading || !trips) {
       content = html`<loading-indicator></loading-indicator>`;
     } else if (trips.length === 0) {
-      content = html`<p>Nog geen projecten</p>`;
+      content = html`<p>No trips yet:( Add some!</p>`;
     } else {
       content = html` <app-grid>
         ${trips.map((c) => {

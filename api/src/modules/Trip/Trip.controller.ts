@@ -3,22 +3,17 @@ import mongoose from "mongoose";
 import Trip from "./Trip.model";
 import NotFoundError from "../../middleware/error/NotFoundError";
 
+// Get all trips
 const getTrips = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    // Ensure user is authenticated
-    if (!req.user) {
-      return res.status(401).json({ message: "Unauthorized: Please log in" });
-    }
-
-    // Fetch only the trips that belong to the logged-in user
-    const trips = await Trip.find({ user: (req.user as any).id });
-
+    const trips = await Trip.find();
     res.json(trips);
   } catch (err) {
     next(err);
   }
 };
 
+// Get trip by ID
 const getTripById = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
@@ -35,10 +30,10 @@ const getTripById = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
+// Create a new trip
 const createTrip = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const trip = new Trip(req.body);
-
     const result = await trip.save();
     res.status(201).json(result);
   } catch (err) {
@@ -46,6 +41,7 @@ const createTrip = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
+// Update an existing trip
 const updateTrip = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
@@ -62,6 +58,7 @@ const updateTrip = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
+// Delete a trip
 const deleteTrip = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
