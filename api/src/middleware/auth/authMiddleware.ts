@@ -36,6 +36,7 @@ const passportHandler = (strategy: string) => {
 
 // Export JWT-based auth middleware
 const authJwt = passportHandler("jwt");
+const authLocal = passportHandler("local");
 
 // Export both authLocal and authJwt if you need other strategies (like local)
-export { authJwt };
+export { authJwt, authLocal };
