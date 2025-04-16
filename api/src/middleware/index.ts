@@ -7,7 +7,7 @@ const registerMiddleware = (app: Express) => {
   // ✅ Define your allowed origins for CORS
   const allowedOrigins = [
     "http://localhost:5173", // Local development
-    "https://travel-app-frontend-eta.vercel.app", // Your deployed frontend
+    "https://travel-app-1-bzyp.onrender.com", // Your deployed frontend
   ];
 
   // ✅ CORS middleware - define allowed origins before other middleware

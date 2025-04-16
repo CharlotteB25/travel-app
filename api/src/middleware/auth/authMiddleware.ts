@@ -20,11 +20,12 @@ const passportHandler = (strategy: string) => {
       strategy,
       { session: false },
       function (err: any, user?: User | false) {
+        console.log("checking token:", req.headers.authorization);
         if (err) {
           return next(err);
         }
         if (!user) {
-          return next(new AuthError());
+          return res.status(401).json({ error: "Unauthorized" });
         } else {
           req.user = user;
           return next();
