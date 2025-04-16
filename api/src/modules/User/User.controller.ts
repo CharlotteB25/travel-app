@@ -18,6 +18,7 @@ const login = (req: Request, res: Response, next: NextFunction) => {
 };
 
 const getCurrentUser = (req: Request, res: Response, next: NextFunction) => {
+  console.log("🔍 Fetching current user data");
   const { user } = req as AuthRequest;
   res.json(user);
 };
