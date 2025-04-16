@@ -3,21 +3,19 @@ import tripRoutes from "../modules/Trip/Trip.routes";
 import { errorHandler } from "../middleware/error/errorHandlerMiddleware";
 import userPublicRoutes from "../modules/User/User.public.routes";
 import userPrivateRoutes from "../modules/User/User.private.routes";
+
 import { authJwt } from "../middleware/auth/authMiddleware";
 
 const registerRoutes = (app: Express) => {
-  // Public routes (e.g., for signup, login)
-  app.use("/", userPublicRoutes); // These should not require auth middleware
+  app.use("/", userPublicRoutes);
 
-  // Authenticated routes (e.g., for user profile, trips)
   const authRoutes = Router();
-  authRoutes.use("/", userPrivateRoutes); // Private routes that require auth
-  authRoutes.use("/", tripRoutes); // Trip routes that require auth
+  authRoutes.use("/", userPrivateRoutes);
+  authRoutes.use("/", tripRoutes);
 
-  // Use JWT authentication middleware ONLY for the private routes
   app.use(authJwt, authRoutes);
 
-  // Error handler middleware should be placed last
+  // should be placed AFTER all routes
   app.use(errorHandler);
 };
 

@@ -6,7 +6,8 @@ import {
   updateTrip,
   deleteTrip,
 } from "./Trip.controller";
-import { authJwt } from "../../middleware/auth/authMiddleware"; // Import JWT auth middleware if needed
+
+import { authJwt } from "../../middleware/auth/authMiddleware";
 
 const router = express.Router();
 

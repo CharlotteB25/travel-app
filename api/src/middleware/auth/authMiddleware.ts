@@ -5,7 +5,6 @@ import { NextFunction, Request, Response } from "express";
 import localStrategy from "./localStrategy";
 import jwtStrategy from "./jwtStrategy";
 
-// Setup passport strategies
 passport.use("local", localStrategy);
 passport.use("jwt", jwtStrategy);
 
@@ -13,9 +12,10 @@ export interface AuthRequest extends Request {
   user: User;
 }
 
-// Helper to apply passport strategy
 const passportHandler = (strategy: string) => {
   return function (req: Request, res: Response, next: NextFunction) {
+    // console.log("🔑 Incoming Request Headers:", req.headers); // Log headers to check for Authorization
+
     passport.authenticate(
       strategy,
       { session: false },
@@ -24,9 +24,9 @@ const passportHandler = (strategy: string) => {
           return next(err);
         }
         if (!user) {
-          return next(new AuthError()); // Handle auth errors
+          return next(new AuthError());
         } else {
-          req.user = user; // Attach user to request
+          req.user = user;
           return next();
         }
       }
@@ -34,9 +34,7 @@ const passportHandler = (strategy: string) => {
   };
 };
 
-// Export JWT-based auth middleware
-const authJwt = passportHandler("jwt");
 const authLocal = passportHandler("local");
+const authJwt = passportHandler("jwt");
 
-// Export both authLocal and authJwt if you need other strategies (like local)
-export { authJwt, authLocal };
+export { authLocal, authJwt };

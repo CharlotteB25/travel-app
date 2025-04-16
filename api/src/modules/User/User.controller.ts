@@ -5,9 +5,16 @@ import TripModel from "../Trip/Trip.model";
 const login = (req: Request, res: Response, next: NextFunction) => {
   const { user } = req as AuthRequest;
 
+  // Generate a new token
+  const token = user.generateToken();
+
+  // Respond with the new token
   res.json({
-    token: user.generateToken(),
+    token,
   });
+
+  // Log the token for debugging purposes
+  console.log("🔑 Generated JWT Token:", token);
 };
 
 const getCurrentUser = (req: Request, res: Response, next: NextFunction) => {

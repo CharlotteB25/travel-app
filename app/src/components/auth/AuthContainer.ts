@@ -22,31 +22,27 @@ export const logout = () => {
 class AuthContainer extends LitElement {
   @provide({ context: userContext })
   user: User | null = null;
-
   @property()
   isLoading: boolean = false;
-
   @property()
   error: string | null = null;
 
   connectedCallback(): void {
     super.connectedCallback();
 
-    // Attach token to all requests if it exists
     API.interceptors.request.use((config) => {
       const token = Storage.getAuthToken();
       if (token) {
-        console.log("Using Token:", token); // Debugging
         config.headers["Authorization"] = `Bearer ${token}`;
+        console.log("sending token", token);
       }
       return config;
     });
 
-    // Handle unauthorized requests
     API.interceptors.response.use(
       (response: AxiosResponse) => response,
       (error: AxiosError) => {
-        if (error.response?.status === 401 && Storage.getAuthToken()) {
+        if (error.response?.status === 401) {
           this.user = null;
           logout();
         }
@@ -54,21 +50,18 @@ class AuthContainer extends LitElement {
       }
     );
 
-    // Only fetch user if a token exists
-    const token = Storage.getAuthToken();
-    if (token) {
-      this.isLoading = true;
-      getCurrentUser()
-        .then(({ data }) => {
-          this.user = data;
-        })
-        .catch((error) => {
-          this.error = error.message;
-        })
-        .finally(() => {
-          this.isLoading = false;
-        });
-    }
+    // fetch user
+    this.isLoading = true;
+    getCurrentUser()
+      .then(({ data }) => {
+        this.user = data;
+      })
+      .catch((error) => {
+        this.error = error.message;
+      })
+      .finally(() => {
+        this.isLoading = false;
+      });
   }
 
   render() {

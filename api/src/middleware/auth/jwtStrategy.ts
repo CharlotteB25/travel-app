@@ -10,25 +10,23 @@ const jwtOptions = {
   secretOrKey: process.env.JWT_SECRET || "defaultSecret",
 };
 
-// JWT strategy to check token validity
+// jwt strategy to check jwt token
 const jwtStrategy = new JWTStrategy(
   jwtOptions,
-  async (payload: any, done: VerifiedCallback) => {
-    try {
-      console.log("JWT Payload:", payload); // Debugging
+  (payload: any, done: VerifiedCallback) => {
+    // console.log("🔑 JWT Payload:", payload);
+    (async () => {
+      try {
+        const user = await UserModel.findById(payload.id);
 
-      const user = await UserModel.findById(payload.id);
-      if (!user) {
-        console.log("JWT Auth: User not found");
-        return done(null, false);
+        if (!user) {
+          return done(null, false);
+        }
+        return done(null, user);
+      } catch (e) {
+        return done(e, false);
       }
-
-      console.log("JWT Auth: User authenticated", user.email);
-      return done(null, user);
-    } catch (e) {
-      console.error("JWT Strategy Error:", e);
-      return done(e, false);
-    }
+    })();
   }
 );
 
