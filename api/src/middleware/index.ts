@@ -4,19 +4,33 @@ import helmet from "helmet";
 import cors from "cors";
 
 const registerMiddleware = (app: Express) => {
-  // cors
-  app.use(cors());
+  // ✅ Define your allowed origins for CORS
+  const allowedOrigins = [
+    "http://localhost:5173", // Local development
+    "https://travel-app-frontend-eta.vercel.app", // Your deployed frontend
+  ];
 
-  // json
-  app.use(express.json());
+  // ✅ CORS middleware - define allowed origins before other middleware
+  app.use(
+    cors({
+      origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error("Not allowed by CORS"));
+        }
+      },
+      credentials: true, // Allow cookies/auth headers if needed
+    })
+  );
 
-  // helmet
-  app.use(helmet.noSniff());
+  // Other middleware
+  app.use(express.json()); // JSON parsing
+  app.use(helmet.noSniff()); // Helmet headers
   app.use(helmet.hidePoweredBy());
   app.use(helmet.xssFilter());
 
-  // compression
-  app.use(compression());
+  app.use(compression()); // Compress responses
 };
 
 export { registerMiddleware };
