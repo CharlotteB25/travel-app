@@ -31,7 +31,7 @@ class Login extends LitElement {
       .then(({ data }) => {
         this.isLoading = false;
         Storage.saveAuthToken(data.token);
-        Router.go("/login");
+        Router.go("/");
       })
       .catch((error) => {
         this.isLoading = false;
