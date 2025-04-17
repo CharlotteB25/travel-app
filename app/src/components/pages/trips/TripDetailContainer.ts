@@ -53,7 +53,7 @@ class TripDetailContainer extends LitElement {
 
   updateContext() {
     const countdown = this.trip
-      ? this.getCountdownDays(this.trip.startDate.toISOString())
+      ? this.getCountdownDays(new Date(this.trip.startDate).toISOString())
       : 0;
 
     this.tripContext = {
