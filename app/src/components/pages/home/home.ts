@@ -6,10 +6,7 @@ import { getTrips } from "@core/modules/trips/Trip.api";
 import { Trip } from "@core/modules/trips/Trip.types";
 import userContext from "@components/auth/userContext";
 import { consume } from "@lit/context";
-<<<<<<< HEAD
-=======
 import { getCurrentUser } from "@core/modules/user/User.api"; // Import the necessary API methods
->>>>>>> updated
 
 import "@components/design/LoadingIndicator";
 import "@components/design/ErrorView";
@@ -23,14 +20,6 @@ import "@components/design/Grid/Grid";
 class Home extends LitElement {
   @property()
   isLoading: boolean = false;
-<<<<<<< HEAD
-  @property()
-  trips: Array<Trip> | null = null;
-  @property()
-  error: string | null = null;
-  @property()
-  data: DashboardData | null = null;
-=======
 
   @property()
   trips: Array<Trip> | null = null;
@@ -41,7 +30,6 @@ class Home extends LitElement {
   @property()
   data: DashboardData | null = null;
 
->>>>>>> updated
   @consume({ context: userContext, subscribe: true })
   @property({ attribute: false })
   public user?: User | null;
@@ -49,23 +37,6 @@ class Home extends LitElement {
   // called when the element is first connected to the document’s DOM
   connectedCallback(): void {
     super.connectedCallback();
-<<<<<<< HEAD
-    this.fetchItems();
-  }
-
-  fetchItems() {
-    this.isLoading = true;
-    // todo in api
-    getTrips()
-      .then(({ data }) => {
-        this.trips = data;
-        this.isLoading = false;
-      })
-      .catch((error) => {
-        this.error = error.message;
-        this.isLoading = false;
-      });
-=======
     this.fetchUserData();
   }
 
@@ -100,7 +71,6 @@ class Home extends LitElement {
     } finally {
       this.isLoading = false;
     }
->>>>>>> updated
   }
 
   render() {
@@ -108,18 +78,6 @@ class Home extends LitElement {
 
     let content = html``;
     if (error) {
-<<<<<<< HEAD
-      content = html`<error-view error=${error} />`;
-    } else if (isLoading || !trips) {
-      content = html`<loading-indicator></loading-indicator>`;
-    } else if (trips.length === 0) {
-      content = html`<p>No trips yet:( Add some!</p>`;
-    } else {
-      content = html` <app-grid>
-        ${trips.map((c) => {
-          return html`<li>
-            <app-card href="/trips/${c._id}">${c.title}</app-card>
-=======
       content = html`<error-view error=${error}></error-view>`;
     } else if (isLoading || !trips) {
       content = html`<loading-indicator></loading-indicator>`;
@@ -130,7 +88,6 @@ class Home extends LitElement {
         ${trips.map((trip) => {
           return html`<li>
             <app-card href="/trips/${trip._id}">${trip.title}</app-card>
->>>>>>> updated
           </li>`;
         })}
       </app-grid>`;
@@ -138,15 +95,10 @@ class Home extends LitElement {
 
     return html`
       <app-page-header>
-<<<<<<< HEAD
-        <app-page-title>Welcome ${this.user?.name}</app-page-title>
-      </app-page-header>
-=======
         <app-page-title>Welcome, ${this.user?.name}</app-page-title>
       </app-page-header>
       <h2>Upcoming trips:</h2>
 
->>>>>>> updated
       ${content}
     `;
   }

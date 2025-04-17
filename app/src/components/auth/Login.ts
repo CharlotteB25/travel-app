@@ -12,19 +12,10 @@ import {
   formStyles,
 } from "@components/style/styles";
 
-<<<<<<< HEAD
-import "@components/design/ErrorView";
-
-=======
->>>>>>> updated
 @customElement("login-page")
 class Login extends LitElement {
   @property()
   isLoading: boolean = false;
-<<<<<<< HEAD
-=======
-
->>>>>>> updated
   @property()
   error: string | null = null;
 
@@ -44,9 +35,6 @@ class Login extends LitElement {
       })
       .catch((error) => {
         this.isLoading = false;
-<<<<<<< HEAD
-        this.error = error.message;
-=======
 
         // Handle specific error responses
         if (error.response) {
@@ -66,22 +54,10 @@ class Login extends LitElement {
           this.error =
             error.message || "An unexpected error occurred. Please try again.";
         }
->>>>>>> updated
       });
   }
 
   render() {
-<<<<<<< HEAD
-    const { isLoading, error, handleSubmit } = this;
-
-    return html`
-      <div class="split">
-        <img class="split__image" src="/home-image.webp" />
-        <div class="split__content">
-          <app-logo></app-logo>
-          ${error ? html`<error-view error=${error} />` : ""}
-          <form @submit=${handleSubmit}>
-=======
     const { isLoading, error } = this;
 
     return html`
@@ -90,7 +66,6 @@ class Login extends LitElement {
           <app-logo></app-logo>
           ${error ? html`<error-view error="${error}"></error-view>` : ""}
           <form @submit=${this.handleSubmit}>
->>>>>>> updated
             <div class="form-control">
               <label class="form-control__label" for="email">Email</label>
               <input
@@ -114,12 +89,9 @@ class Login extends LitElement {
                 required
               />
             </div>
-<<<<<<< HEAD
-=======
             <div class="form-control">
               <a href="/register">Don't have an account? Register</a>
             </div>
->>>>>>> updated
             <button class="btn-primary" type="submit" ?disabled=${isLoading}>
               Login
             </button>
@@ -134,25 +106,6 @@ class Login extends LitElement {
     formStyles,
     buttonStyles,
     css`
-<<<<<<< HEAD
-      .split {
-        display: flex;
-        height: 100vh;
-        width: 100vw;
-        align-items: center;
-      }
-      .split__image {
-        width: 60vw;
-        height: 100vh;
-        object-fit: cover;
-      }
-      .split__content {
-        flex: 1;
-        padding: 5rem 2rem;
-      }
-      .form {
-        margin-top: 1rem;
-=======
       .container {
         display: flex;
         justify-content: center;
@@ -203,7 +156,6 @@ class Login extends LitElement {
 
       .form-control a:hover {
         text-decoration: underline;
->>>>>>> updated
       }
     `,
   ];
