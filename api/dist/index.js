@@ -30,383 +30,6 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
-// node_modules/dotenv/package.json
-var require_package = __commonJS({
-  "node_modules/dotenv/package.json"(exports, module) {
-    module.exports = {
-      name: "dotenv",
-      version: "16.4.5",
-      description: "Loads environment variables from .env file",
-      main: "lib/main.js",
-      types: "lib/main.d.ts",
-      exports: {
-        ".": {
-          types: "./lib/main.d.ts",
-          require: "./lib/main.js",
-          default: "./lib/main.js"
-        },
-        "./config": "./config.js",
-        "./config.js": "./config.js",
-        "./lib/env-options": "./lib/env-options.js",
-        "./lib/env-options.js": "./lib/env-options.js",
-        "./lib/cli-options": "./lib/cli-options.js",
-        "./lib/cli-options.js": "./lib/cli-options.js",
-        "./package.json": "./package.json"
-      },
-      scripts: {
-        "dts-check": "tsc --project tests/types/tsconfig.json",
-        lint: "standard",
-        "lint-readme": "standard-markdown",
-        pretest: "npm run lint && npm run dts-check",
-        test: "tap tests/*.js --100 -Rspec",
-        "test:coverage": "tap --coverage-report=lcov",
-        prerelease: "npm test",
-        release: "standard-version"
-      },
-      repository: {
-        type: "git",
-        url: "git://github.com/motdotla/dotenv.git"
-      },
-      funding: "https://dotenvx.com",
-      keywords: [
-        "dotenv",
-        "env",
-        ".env",
-        "environment",
-        "variables",
-        "config",
-        "settings"
-      ],
-      readmeFilename: "README.md",
-      license: "BSD-2-Clause",
-      devDependencies: {
-        "@definitelytyped/dtslint": "^0.0.133",
-        "@types/node": "^18.11.3",
-        decache: "^4.6.1",
-        sinon: "^14.0.1",
-        standard: "^17.0.0",
-        "standard-markdown": "^7.1.0",
-        "standard-version": "^9.5.0",
-        tap: "^16.3.0",
-        tar: "^6.1.11",
-        typescript: "^4.8.4"
-      },
-      engines: {
-        node: ">=12"
-      },
-      browser: {
-        fs: false
-      }
-    };
-  }
-});
-
-// node_modules/dotenv/lib/main.js
-var require_main = __commonJS({
-  "node_modules/dotenv/lib/main.js"(exports, module) {
-    var fs = __require("fs");
-    var path = __require("path");
-    var os = __require("os");
-    var crypto = __require("crypto");
-    var packageJson = require_package();
-    var version = packageJson.version;
-    var LINE = /(?:^|^)\s*(?:export\s+)?([\w.-]+)(?:\s*=\s*?|:\s+?)(\s*'(?:\\'|[^'])*'|\s*"(?:\\"|[^"])*"|\s*`(?:\\`|[^`])*`|[^#\r\n]+)?\s*(?:#.*)?(?:$|$)/mg;
-    function parse(src) {
-      const obj = {};
-      let lines = src.toString();
-      lines = lines.replace(/\r\n?/mg, "\n");
-      let match;
-      while ((match = LINE.exec(lines)) != null) {
-        const key = match[1];
-        let value = match[2] || "";
-        value = value.trim();
-        const maybeQuote = value[0];
-        value = value.replace(/^(['"`])([\s\S]*)\1$/mg, "$2");
-        if (maybeQuote === '"') {
-          value = value.replace(/\\n/g, "\n");
-          value = value.replace(/\\r/g, "\r");
-        }
-        obj[key] = value;
-      }
-      return obj;
-    }
-    function _parseVault(options) {
-      const vaultPath = _vaultPath(options);
-      const result = DotenvModule.configDotenv({ path: vaultPath });
-      if (!result.parsed) {
-        const err = new Error(`MISSING_DATA: Cannot parse ${vaultPath} for an unknown reason`);
-        err.code = "MISSING_DATA";
-        throw err;
-      }
-      const keys = _dotenvKey(options).split(",");
-      const length = keys.length;
-      let decrypted;
-      for (let i = 0; i < length; i++) {
-        try {
-          const key = keys[i].trim();
-          const attrs = _instructions(result, key);
-          decrypted = DotenvModule.decrypt(attrs.ciphertext, attrs.key);
-          break;
-        } catch (error) {
-          if (i + 1 >= length) {
-            throw error;
-          }
-        }
-      }
-      return DotenvModule.parse(decrypted);
-    }
-    function _log(message) {
-      console.log(`[dotenv@${version}][INFO] ${message}`);
-    }
-    function _warn(message) {
-      console.log(`[dotenv@${version}][WARN] ${message}`);
-    }
-    function _debug(message) {
-      console.log(`[dotenv@${version}][DEBUG] ${message}`);
-    }
-    function _dotenvKey(options) {
-      if (options && options.DOTENV_KEY && options.DOTENV_KEY.length > 0) {
-        return options.DOTENV_KEY;
-      }
-      if (process.env.DOTENV_KEY && process.env.DOTENV_KEY.length > 0) {
-        return process.env.DOTENV_KEY;
-      }
-      return "";
-    }
-    function _instructions(result, dotenvKey) {
-      let uri;
-      try {
-        uri = new URL(dotenvKey);
-      } catch (error) {
-        if (error.code === "ERR_INVALID_URL") {
-          const err = new Error("INVALID_DOTENV_KEY: Wrong format. Must be in valid uri format like dotenv://:key_1234@dotenvx.com/vault/.env.vault?environment=development");
-          err.code = "INVALID_DOTENV_KEY";
-          throw err;
-        }
-        throw error;
-      }
-      const key = uri.password;
-      if (!key) {
-        const err = new Error("INVALID_DOTENV_KEY: Missing key part");
-        err.code = "INVALID_DOTENV_KEY";
-        throw err;
-      }
-      const environment = uri.searchParams.get("environment");
-      if (!environment) {
-        const err = new Error("INVALID_DOTENV_KEY: Missing environment part");
-        err.code = "INVALID_DOTENV_KEY";
-        throw err;
-      }
-      const environmentKey = `DOTENV_VAULT_${environment.toUpperCase()}`;
-      const ciphertext = result.parsed[environmentKey];
-      if (!ciphertext) {
-        const err = new Error(`NOT_FOUND_DOTENV_ENVIRONMENT: Cannot locate environment ${environmentKey} in your .env.vault file.`);
-        err.code = "NOT_FOUND_DOTENV_ENVIRONMENT";
-        throw err;
-      }
-      return { ciphertext, key };
-    }
-    function _vaultPath(options) {
-      let possibleVaultPath = null;
-      if (options && options.path && options.path.length > 0) {
-        if (Array.isArray(options.path)) {
-          for (const filepath of options.path) {
-            if (fs.existsSync(filepath)) {
-              possibleVaultPath = filepath.endsWith(".vault") ? filepath : `${filepath}.vault`;
-            }
-          }
-        } else {
-          possibleVaultPath = options.path.endsWith(".vault") ? options.path : `${options.path}.vault`;
-        }
-      } else {
-        possibleVaultPath = path.resolve(process.cwd(), ".env.vault");
-      }
-      if (fs.existsSync(possibleVaultPath)) {
-        return possibleVaultPath;
-      }
-      return null;
-    }
-    function _resolveHome(envPath) {
-      return envPath[0] === "~" ? path.join(os.homedir(), envPath.slice(1)) : envPath;
-    }
-    function _configVault(options) {
-      _log("Loading env from encrypted .env.vault");
-      const parsed = DotenvModule._parseVault(options);
-      let processEnv = process.env;
-      if (options && options.processEnv != null) {
-        processEnv = options.processEnv;
-      }
-      DotenvModule.populate(processEnv, parsed, options);
-      return { parsed };
-    }
-    function configDotenv(options) {
-      const dotenvPath = path.resolve(process.cwd(), ".env");
-      let encoding = "utf8";
-      const debug = Boolean(options && options.debug);
-      if (options && options.encoding) {
-        encoding = options.encoding;
-      } else {
-        if (debug) {
-          _debug("No encoding is specified. UTF-8 is used by default");
-        }
-      }
-      let optionPaths = [dotenvPath];
-      if (options && options.path) {
-        if (!Array.isArray(options.path)) {
-          optionPaths = [_resolveHome(options.path)];
-        } else {
-          optionPaths = [];
-          for (const filepath of options.path) {
-            optionPaths.push(_resolveHome(filepath));
-          }
-        }
-      }
-      let lastError;
-      const parsedAll = {};
-      for (const path2 of optionPaths) {
-        try {
-          const parsed = DotenvModule.parse(fs.readFileSync(path2, { encoding }));
-          DotenvModule.populate(parsedAll, parsed, options);
-        } catch (e) {
-          if (debug) {
-            _debug(`Failed to load ${path2} ${e.message}`);
-          }
-          lastError = e;
-        }
-      }
-      let processEnv = process.env;
-      if (options && options.processEnv != null) {
-        processEnv = options.processEnv;
-      }
-      DotenvModule.populate(processEnv, parsedAll, options);
-      if (lastError) {
-        return { parsed: parsedAll, error: lastError };
-      } else {
-        return { parsed: parsedAll };
-      }
-    }
-    function config(options) {
-      if (_dotenvKey(options).length === 0) {
-        return DotenvModule.configDotenv(options);
-      }
-      const vaultPath = _vaultPath(options);
-      if (!vaultPath) {
-        _warn(`You set DOTENV_KEY but you are missing a .env.vault file at ${vaultPath}. Did you forget to build it?`);
-        return DotenvModule.configDotenv(options);
-      }
-      return DotenvModule._configVault(options);
-    }
-    function decrypt(encrypted, keyStr) {
-      const key = Buffer.from(keyStr.slice(-64), "hex");
-      let ciphertext = Buffer.from(encrypted, "base64");
-      const nonce = ciphertext.subarray(0, 12);
-      const authTag = ciphertext.subarray(-16);
-      ciphertext = ciphertext.subarray(12, -16);
-      try {
-        const aesgcm = crypto.createDecipheriv("aes-256-gcm", key, nonce);
-        aesgcm.setAuthTag(authTag);
-        return `${aesgcm.update(ciphertext)}${aesgcm.final()}`;
-      } catch (error) {
-        const isRange = error instanceof RangeError;
-        const invalidKeyLength = error.message === "Invalid key length";
-        const decryptionFailed = error.message === "Unsupported state or unable to authenticate data";
-        if (isRange || invalidKeyLength) {
-          const err = new Error("INVALID_DOTENV_KEY: It must be 64 characters long (or more)");
-          err.code = "INVALID_DOTENV_KEY";
-          throw err;
-        } else if (decryptionFailed) {
-          const err = new Error("DECRYPTION_FAILED: Please check your DOTENV_KEY");
-          err.code = "DECRYPTION_FAILED";
-          throw err;
-        } else {
-          throw error;
-        }
-      }
-    }
-    function populate(processEnv, parsed, options = {}) {
-      const debug = Boolean(options && options.debug);
-      const override = Boolean(options && options.override);
-      if (typeof parsed !== "object") {
-        const err = new Error("OBJECT_REQUIRED: Please check the processEnv argument being passed to populate");
-        err.code = "OBJECT_REQUIRED";
-        throw err;
-      }
-      for (const key of Object.keys(parsed)) {
-        if (Object.prototype.hasOwnProperty.call(processEnv, key)) {
-          if (override === true) {
-            processEnv[key] = parsed[key];
-          }
-          if (debug) {
-            if (override === true) {
-              _debug(`"${key}" is already defined and WAS overwritten`);
-            } else {
-              _debug(`"${key}" is already defined and was NOT overwritten`);
-            }
-          }
-        } else {
-          processEnv[key] = parsed[key];
-        }
-      }
-    }
-    var DotenvModule = {
-      configDotenv,
-      _configVault,
-      _parseVault,
-      config,
-      decrypt,
-      parse,
-      populate
-    };
-    module.exports.configDotenv = DotenvModule.configDotenv;
-    module.exports._configVault = DotenvModule._configVault;
-    module.exports._parseVault = DotenvModule._parseVault;
-    module.exports.config = DotenvModule.config;
-    module.exports.decrypt = DotenvModule.decrypt;
-    module.exports.parse = DotenvModule.parse;
-    module.exports.populate = DotenvModule.populate;
-    module.exports = DotenvModule;
-  }
-});
-
-// node_modules/dotenv/lib/env-options.js
-var require_env_options = __commonJS({
-  "node_modules/dotenv/lib/env-options.js"(exports, module) {
-    var options = {};
-    if (process.env.DOTENV_CONFIG_ENCODING != null) {
-      options.encoding = process.env.DOTENV_CONFIG_ENCODING;
-    }
-    if (process.env.DOTENV_CONFIG_PATH != null) {
-      options.path = process.env.DOTENV_CONFIG_PATH;
-    }
-    if (process.env.DOTENV_CONFIG_DEBUG != null) {
-      options.debug = process.env.DOTENV_CONFIG_DEBUG;
-    }
-    if (process.env.DOTENV_CONFIG_OVERRIDE != null) {
-      options.override = process.env.DOTENV_CONFIG_OVERRIDE;
-    }
-    if (process.env.DOTENV_CONFIG_DOTENV_KEY != null) {
-      options.DOTENV_KEY = process.env.DOTENV_CONFIG_DOTENV_KEY;
-    }
-    module.exports = options;
-  }
-});
-
-// node_modules/dotenv/lib/cli-options.js
-var require_cli_options = __commonJS({
-  "node_modules/dotenv/lib/cli-options.js"(exports, module) {
-    var re = /^dotenv_config_(encoding|path|debug|override|DOTENV_KEY)=(.+)$/;
-    module.exports = function optionMatcher(args) {
-      return args.reduce(function(acc, cur) {
-        const matches = cur.match(re);
-        if (matches) {
-          acc[matches[1]] = matches[2];
-        }
-        return acc;
-      }, {});
-    };
-  }
-});
-
 // node_modules/mongoose/lib/connectionState.js
 var require_connectionState = __commonJS({
   "node_modules/mongoose/lib/connectionState.js"(exports, module) {
@@ -19646,7 +19269,7 @@ var require_lib2 = __commonJS({
 });
 
 // node_modules/mongoose/node_modules/mongodb/package.json
-var require_package2 = __commonJS({
+var require_package = __commonJS({
   "node_modules/mongoose/node_modules/mongodb/package.json"(exports, module) {
     module.exports = {
       name: "mongodb",
@@ -19841,7 +19464,7 @@ var require_client_metadata = __commonJS({
     var bson_1 = require_bson2();
     var error_1 = require_error();
     var utils_1 = require_utils();
-    var NODE_DRIVER_VERSION = require_package2().version;
+    var NODE_DRIVER_VERSION = require_package().version;
     var LimitedSizeDocument = class {
       constructor(maxSize) {
         this.maxSize = maxSize;
@@ -47533,10 +47156,10 @@ var require_connection2 = __commonJS({
         });
       });
     };
-    async function _wrapUserTransaction(fn, session, mongoose4) {
+    async function _wrapUserTransaction(fn, session, mongoose5) {
       try {
-        const res = mongoose4.transactionAsyncLocalStorage == null ? await fn(session) : await new Promise((resolve) => {
-          mongoose4.transactionAsyncLocalStorage.run(
+        const res = mongoose5.transactionAsyncLocalStorage == null ? await fn(session) : await new Promise((resolve) => {
+          mongoose5.transactionAsyncLocalStorage.run(
             { session },
             () => resolve(fn(session))
           );
@@ -47992,7 +47615,7 @@ var require_connection2 = __commonJS({
 });
 
 // node_modules/mongoose/package.json
-var require_package3 = __commonJS({
+var require_package2 = __commonJS({
   "node_modules/mongoose/package.json"(exports, module) {
     module.exports = {
       name: "mongoose",
@@ -48208,7 +47831,7 @@ var require_connection3 = __commonJS({
     var MongooseError = require_error2();
     var STATES = require_connectionState();
     var mongodb = require_lib3();
-    var pkg = require_package3();
+    var pkg = require_package2();
     var processConnectionOptions = require_processConnectionOptions();
     var setTimeout2 = require_timers().setTimeout;
     var utils = require_utils3();
@@ -61019,7 +60642,7 @@ var require_mongoose = __commonJS({
     var driver = require_driver();
     var legacyPluralize = require_pluralize();
     var utils = require_utils3();
-    var pkg = require_package3();
+    var pkg = require_package2();
     var cast = require_cast2();
     var Aggregate = require_aggregate2();
     var trusted = require_trusted().trusted;
@@ -61083,7 +60706,7 @@ var require_mongoose = __commonJS({
     Mongoose.prototype.ConnectionStates = STATES;
     Mongoose.prototype.driver = driver;
     Mongoose.prototype.setDriver = function setDriver(driver2) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose4;
+      const _mongoose = this instanceof Mongoose ? this : mongoose5;
       if (_mongoose.__driver === driver2) {
         return _mongoose;
       }
@@ -61116,7 +60739,7 @@ var require_mongoose = __commonJS({
       return _mongoose;
     };
     Mongoose.prototype.set = function(key, value) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose4;
+      const _mongoose = this instanceof Mongoose ? this : mongoose5;
       if (arguments.length === 1 && typeof key !== "object") {
         if (VALID_OPTIONS.indexOf(key) === -1) {
           const error2 = new SetOptionError();
@@ -61177,7 +60800,7 @@ var require_mongoose = __commonJS({
     };
     Mongoose.prototype.get = Mongoose.prototype.set;
     Mongoose.prototype.createConnection = function(uri, options) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose4;
+      const _mongoose = this instanceof Mongoose ? this : mongoose5;
       const Connection = _mongoose.__driver.Connection;
       const conn = new Connection(_mongoose);
       _mongoose.connections.push(conn);
@@ -61192,7 +60815,7 @@ var require_mongoose = __commonJS({
       if (typeof options === "function" || arguments.length >= 3 && typeof arguments[2] === "function") {
         throw new MongooseError("Mongoose.prototype.connect() no longer accepts a callback");
       }
-      const _mongoose = this instanceof Mongoose ? this : mongoose4;
+      const _mongoose = this instanceof Mongoose ? this : mongoose5;
       if (_mongoose.connection == null) {
         _createDefaultConnection(_mongoose);
       }
@@ -61203,7 +60826,7 @@ var require_mongoose = __commonJS({
       if (arguments.length >= 1 && typeof arguments[0] === "function") {
         throw new MongooseError("Mongoose.prototype.disconnect() no longer accepts a callback");
       }
-      const _mongoose = this instanceof Mongoose ? this : mongoose4;
+      const _mongoose = this instanceof Mongoose ? this : mongoose5;
       const remaining = _mongoose.connections.length;
       if (remaining <= 0) {
         return;
@@ -61211,18 +60834,18 @@ var require_mongoose = __commonJS({
       await Promise.all(_mongoose.connections.map((conn) => conn.close()));
     };
     Mongoose.prototype.startSession = function() {
-      const _mongoose = this instanceof Mongoose ? this : mongoose4;
+      const _mongoose = this instanceof Mongoose ? this : mongoose5;
       return _mongoose.connection.startSession.apply(_mongoose.connection, arguments);
     };
     Mongoose.prototype.pluralize = function(fn) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose4;
+      const _mongoose = this instanceof Mongoose ? this : mongoose5;
       if (arguments.length > 0) {
         _mongoose._pluralize = fn;
       }
       return _mongoose._pluralize;
     };
     Mongoose.prototype.model = function(name, schema, collection, options) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose4;
+      const _mongoose = this instanceof Mongoose ? this : mongoose5;
       if (typeof schema === "string") {
         collection = schema;
         schema = false;
@@ -61270,7 +60893,7 @@ var require_mongoose = __commonJS({
       return model;
     };
     Mongoose.prototype._model = function(name, schema, collection, options) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose4;
+      const _mongoose = this instanceof Mongoose ? this : mongoose5;
       let model;
       if (typeof name === "function") {
         model = name;
@@ -61309,25 +60932,25 @@ var require_mongoose = __commonJS({
       return model;
     };
     Mongoose.prototype.deleteModel = function(name) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose4;
+      const _mongoose = this instanceof Mongoose ? this : mongoose5;
       _mongoose.connection.deleteModel(name);
       delete _mongoose.models[name];
       return _mongoose;
     };
     Mongoose.prototype.modelNames = function() {
-      const _mongoose = this instanceof Mongoose ? this : mongoose4;
+      const _mongoose = this instanceof Mongoose ? this : mongoose5;
       const names = Object.keys(_mongoose.models);
       return names;
     };
     Mongoose.prototype._applyPlugins = function(schema, options) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose4;
+      const _mongoose = this instanceof Mongoose ? this : mongoose5;
       options = options || {};
       options.applyPluginsToDiscriminators = _mongoose.options && _mongoose.options.applyPluginsToDiscriminators || false;
       options.applyPluginsToChildSchemas = typeof (_mongoose.options && _mongoose.options.applyPluginsToChildSchemas) === "boolean" ? _mongoose.options.applyPluginsToChildSchemas : true;
       applyPlugins(schema, _mongoose.plugins, options, "$globalPluginsApplied");
     };
     Mongoose.prototype.plugin = function(fn, opts) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose4;
+      const _mongoose = this instanceof Mongoose ? this : mongoose5;
       _mongoose.plugins.push([fn, opts]);
       return _mongoose;
     };
@@ -61375,14 +60998,14 @@ var require_mongoose = __commonJS({
     Mongoose.prototype.DocumentProvider = require_documentProvider();
     Mongoose.prototype.ObjectId = SchemaTypes.ObjectId;
     Mongoose.prototype.isValidObjectId = function(v) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose4;
+      const _mongoose = this instanceof Mongoose ? this : mongoose5;
       return _mongoose.Types.ObjectId.isValid(v);
     };
     Mongoose.prototype.isObjectIdOrHexString = function(v) {
       return isBsonType(v, "ObjectId") || typeof v === "string" && objectIdHexRegexp.test(v);
     };
     Mongoose.prototype.syncIndexes = function(options) {
-      const _mongoose = this instanceof Mongoose ? this : mongoose4;
+      const _mongoose = this instanceof Mongoose ? this : mongoose5;
       return _mongoose.connection.syncIndexes(options);
     };
     Mongoose.prototype.Decimal128 = SchemaTypes.Decimal128;
@@ -61402,15 +61025,15 @@ var require_mongoose = __commonJS({
     Mongoose.prototype.skipMiddlewareFunction = Kareem.skipWrappedFunction;
     Mongoose.prototype.overwriteMiddlewareResult = Kareem.overwriteResult;
     Mongoose.prototype.omitUndefined = require_omitUndefined();
-    function _createDefaultConnection(mongoose5) {
-      if (mongoose5.connection) {
+    function _createDefaultConnection(mongoose6) {
+      if (mongoose6.connection) {
         return;
       }
-      const conn = mongoose5.createConnection();
+      const conn = mongoose6.createConnection();
       conn[defaultConnectionSymbol] = true;
-      conn.models = mongoose5.models;
+      conn.models = mongoose6.models;
     }
-    var mongoose4 = module.exports = exports = new Mongoose({
+    var mongoose5 = module.exports = exports = new Mongoose({
       [defaultMongooseSymbol]: true
     });
   }
@@ -61422,10 +61045,10 @@ var require_lib6 = __commonJS({
     "use strict";
     var mongodbDriver = require_node_mongodb_native();
     require_driver().set(mongodbDriver);
-    var mongoose4 = require_mongoose();
-    mongoose4.setDriver(mongodbDriver);
-    mongoose4.Mongoose.prototype.mongo = require_lib3();
-    module.exports = mongoose4;
+    var mongoose5 = require_mongoose();
+    mongoose5.setDriver(mongodbDriver);
+    mongoose5.Mongoose.prototype.mongo = require_lib3();
+    module.exports = mongoose5;
   }
 });
 
@@ -61433,54 +61056,54 @@ var require_lib6 = __commonJS({
 var require_mongoose2 = __commonJS({
   "node_modules/mongoose/index.js"(exports, module) {
     "use strict";
-    var mongoose4 = require_lib6();
-    module.exports = mongoose4;
-    module.exports.default = mongoose4;
-    module.exports.mongoose = mongoose4;
-    module.exports.cast = mongoose4.cast;
-    module.exports.STATES = mongoose4.STATES;
-    module.exports.setDriver = mongoose4.setDriver;
-    module.exports.set = mongoose4.set;
-    module.exports.get = mongoose4.get;
-    module.exports.createConnection = mongoose4.createConnection;
-    module.exports.connect = mongoose4.connect;
-    module.exports.disconnect = mongoose4.disconnect;
-    module.exports.startSession = mongoose4.startSession;
-    module.exports.pluralize = mongoose4.pluralize;
-    module.exports.model = mongoose4.model;
-    module.exports.deleteModel = mongoose4.deleteModel;
-    module.exports.modelNames = mongoose4.modelNames;
-    module.exports.plugin = mongoose4.plugin;
-    module.exports.connections = mongoose4.connections;
-    module.exports.version = mongoose4.version;
-    module.exports.Mongoose = mongoose4.Mongoose;
-    module.exports.Schema = mongoose4.Schema;
-    module.exports.SchemaType = mongoose4.SchemaType;
-    module.exports.SchemaTypes = mongoose4.SchemaTypes;
-    module.exports.VirtualType = mongoose4.VirtualType;
-    module.exports.Types = mongoose4.Types;
-    module.exports.Query = mongoose4.Query;
-    module.exports.Model = mongoose4.Model;
-    module.exports.Document = mongoose4.Document;
-    module.exports.ObjectId = mongoose4.ObjectId;
-    module.exports.isValidObjectId = mongoose4.isValidObjectId;
-    module.exports.isObjectIdOrHexString = mongoose4.isObjectIdOrHexString;
-    module.exports.syncIndexes = mongoose4.syncIndexes;
-    module.exports.Decimal128 = mongoose4.Decimal128;
-    module.exports.Mixed = mongoose4.Mixed;
-    module.exports.Date = mongoose4.Date;
-    module.exports.Number = mongoose4.Number;
-    module.exports.Error = mongoose4.Error;
-    module.exports.MongooseError = mongoose4.MongooseError;
-    module.exports.now = mongoose4.now;
-    module.exports.CastError = mongoose4.CastError;
-    module.exports.SchemaTypeOptions = mongoose4.SchemaTypeOptions;
-    module.exports.mongo = mongoose4.mongo;
-    module.exports.mquery = mongoose4.mquery;
-    module.exports.sanitizeFilter = mongoose4.sanitizeFilter;
-    module.exports.trusted = mongoose4.trusted;
-    module.exports.skipMiddlewareFunction = mongoose4.skipMiddlewareFunction;
-    module.exports.overwriteMiddlewareResult = mongoose4.overwriteMiddlewareResult;
+    var mongoose5 = require_lib6();
+    module.exports = mongoose5;
+    module.exports.default = mongoose5;
+    module.exports.mongoose = mongoose5;
+    module.exports.cast = mongoose5.cast;
+    module.exports.STATES = mongoose5.STATES;
+    module.exports.setDriver = mongoose5.setDriver;
+    module.exports.set = mongoose5.set;
+    module.exports.get = mongoose5.get;
+    module.exports.createConnection = mongoose5.createConnection;
+    module.exports.connect = mongoose5.connect;
+    module.exports.disconnect = mongoose5.disconnect;
+    module.exports.startSession = mongoose5.startSession;
+    module.exports.pluralize = mongoose5.pluralize;
+    module.exports.model = mongoose5.model;
+    module.exports.deleteModel = mongoose5.deleteModel;
+    module.exports.modelNames = mongoose5.modelNames;
+    module.exports.plugin = mongoose5.plugin;
+    module.exports.connections = mongoose5.connections;
+    module.exports.version = mongoose5.version;
+    module.exports.Mongoose = mongoose5.Mongoose;
+    module.exports.Schema = mongoose5.Schema;
+    module.exports.SchemaType = mongoose5.SchemaType;
+    module.exports.SchemaTypes = mongoose5.SchemaTypes;
+    module.exports.VirtualType = mongoose5.VirtualType;
+    module.exports.Types = mongoose5.Types;
+    module.exports.Query = mongoose5.Query;
+    module.exports.Model = mongoose5.Model;
+    module.exports.Document = mongoose5.Document;
+    module.exports.ObjectId = mongoose5.ObjectId;
+    module.exports.isValidObjectId = mongoose5.isValidObjectId;
+    module.exports.isObjectIdOrHexString = mongoose5.isObjectIdOrHexString;
+    module.exports.syncIndexes = mongoose5.syncIndexes;
+    module.exports.Decimal128 = mongoose5.Decimal128;
+    module.exports.Mixed = mongoose5.Mixed;
+    module.exports.Date = mongoose5.Date;
+    module.exports.Number = mongoose5.Number;
+    module.exports.Error = mongoose5.Error;
+    module.exports.MongooseError = mongoose5.MongooseError;
+    module.exports.now = mongoose5.now;
+    module.exports.CastError = mongoose5.CastError;
+    module.exports.SchemaTypeOptions = mongoose5.SchemaTypeOptions;
+    module.exports.mongo = mongoose5.mongo;
+    module.exports.mquery = mongoose5.mquery;
+    module.exports.sanitizeFilter = mongoose5.sanitizeFilter;
+    module.exports.trusted = mongoose5.trusted;
+    module.exports.skipMiddlewareFunction = mongoose5.skipMiddlewareFunction;
+    module.exports.overwriteMiddlewareResult = mongoose5.overwriteMiddlewareResult;
   }
 });
 
@@ -82854,7 +82477,7 @@ var require_application = __commonJS({
   "node_modules/express/lib/application.js"(exports, module) {
     "use strict";
     var finalhandler = require_finalhandler();
-    var Router5 = require_router();
+    var Router4 = require_router();
     var methods = require_methods3();
     var middleware = require_init();
     var query = require_query2();
@@ -82919,7 +82542,7 @@ var require_application = __commonJS({
     };
     app2.lazyrouter = function lazyrouter() {
       if (!this._router) {
-        this._router = new Router5({
+        this._router = new Router4({
           caseSensitive: this.enabled("case sensitive routing"),
           strict: this.enabled("strict routing")
         });
@@ -84755,7 +84378,7 @@ var require_express = __commonJS({
     var mixin = require_merge_descriptors();
     var proto = require_application();
     var Route = require_route();
-    var Router5 = require_router();
+    var Router4 = require_router();
     var req = require_request();
     var res = require_response();
     exports = module.exports = createApplication;
@@ -84778,7 +84401,7 @@ var require_express = __commonJS({
     exports.request = req;
     exports.response = res;
     exports.Route = Route;
-    exports.Router = Router5;
+    exports.Router = Router4;
     exports.json = bodyParser.json;
     exports.query = require_query2();
     exports.raw = bodyParser.raw;
@@ -85603,7 +85226,7 @@ var require_bcrypt = __commonJS({
         (global2["dcodeIO"] = global2["dcodeIO"] || {})["bcrypt"] = factory();
     })(exports, function() {
       "use strict";
-      var bcrypt2 = {};
+      var bcrypt3 = {};
       var randomFallback = null;
       function random(len) {
         if (typeof module !== "undefined" && module && module["exports"])
@@ -85628,10 +85251,10 @@ var require_bcrypt = __commonJS({
       } catch (e) {
       }
       randomFallback = null;
-      bcrypt2.setRandomFallback = function(random2) {
+      bcrypt3.setRandomFallback = function(random2) {
         randomFallback = random2;
       };
-      bcrypt2.genSaltSync = function(rounds, seed_length) {
+      bcrypt3.genSaltSync = function(rounds, seed_length) {
         rounds = rounds || GENSALT_DEFAULT_LOG2_ROUNDS;
         if (typeof rounds !== "number")
           throw Error("Illegal arguments: " + typeof rounds + ", " + typeof seed_length);
@@ -85648,7 +85271,7 @@ var require_bcrypt = __commonJS({
         salt.push(base64_encode(random(BCRYPT_SALT_LEN), BCRYPT_SALT_LEN));
         return salt.join("");
       };
-      bcrypt2.genSalt = function(rounds, seed_length, callback2) {
+      bcrypt3.genSalt = function(rounds, seed_length, callback2) {
         if (typeof seed_length === "function")
           callback2 = seed_length, seed_length = void 0;
         if (typeof rounds === "function")
@@ -85660,7 +85283,7 @@ var require_bcrypt = __commonJS({
         function _async(callback3) {
           nextTick(function() {
             try {
-              callback3(null, bcrypt2.genSaltSync(rounds));
+              callback3(null, bcrypt3.genSaltSync(rounds));
             } catch (err) {
               callback3(err);
             }
@@ -85681,19 +85304,19 @@ var require_bcrypt = __commonJS({
             });
           });
       };
-      bcrypt2.hashSync = function(s, salt) {
+      bcrypt3.hashSync = function(s, salt) {
         if (typeof salt === "undefined")
           salt = GENSALT_DEFAULT_LOG2_ROUNDS;
         if (typeof salt === "number")
-          salt = bcrypt2.genSaltSync(salt);
+          salt = bcrypt3.genSaltSync(salt);
         if (typeof s !== "string" || typeof salt !== "string")
           throw Error("Illegal arguments: " + typeof s + ", " + typeof salt);
         return _hash(s, salt);
       };
-      bcrypt2.hash = function(s, salt, callback2, progressCallback) {
+      bcrypt3.hash = function(s, salt, callback2, progressCallback) {
         function _async(callback3) {
           if (typeof s === "string" && typeof salt === "number")
-            bcrypt2.genSalt(salt, function(err, salt2) {
+            bcrypt3.genSalt(salt, function(err, salt2) {
               _hash(s, salt2, callback3, progressCallback);
             });
           else if (typeof s === "string" && typeof salt === "string")
@@ -85728,14 +85351,14 @@ var require_bcrypt = __commonJS({
           return false;
         return wrong === 0;
       }
-      bcrypt2.compareSync = function(s, hash) {
+      bcrypt3.compareSync = function(s, hash) {
         if (typeof s !== "string" || typeof hash !== "string")
           throw Error("Illegal arguments: " + typeof s + ", " + typeof hash);
         if (hash.length !== 60)
           return false;
-        return safeStringCompare(bcrypt2.hashSync(s, hash.substr(0, hash.length - 31)), hash);
+        return safeStringCompare(bcrypt3.hashSync(s, hash.substr(0, hash.length - 31)), hash);
       };
-      bcrypt2.compare = function(s, hash, callback2, progressCallback) {
+      bcrypt3.compare = function(s, hash, callback2, progressCallback) {
         function _async(callback3) {
           if (typeof s !== "string" || typeof hash !== "string") {
             nextTick(callback3.bind(this, Error("Illegal arguments: " + typeof s + ", " + typeof hash)));
@@ -85745,7 +85368,7 @@ var require_bcrypt = __commonJS({
             nextTick(callback3.bind(this, null, false));
             return;
           }
-          bcrypt2.hash(s, hash.substr(0, 29), function(err, comp) {
+          bcrypt3.hash(s, hash.substr(0, 29), function(err, comp) {
             if (err)
               callback3(err);
             else
@@ -85767,12 +85390,12 @@ var require_bcrypt = __commonJS({
             });
           });
       };
-      bcrypt2.getRounds = function(hash) {
+      bcrypt3.getRounds = function(hash) {
         if (typeof hash !== "string")
           throw Error("Illegal arguments: " + typeof hash);
         return parseInt(hash.split("$")[2], 10);
       };
-      bcrypt2.getSalt = function(hash) {
+      bcrypt3.getSalt = function(hash) {
         if (typeof hash !== "string")
           throw Error("Illegal arguments: " + typeof hash);
         if (hash.length !== 60)
@@ -87395,9 +87018,9 @@ var require_bcrypt = __commonJS({
           }, progressCallback);
         }
       }
-      bcrypt2.encodeBase64 = base64_encode;
-      bcrypt2.decodeBase64 = base64_decode;
-      return bcrypt2;
+      bcrypt3.encodeBase64 = base64_encode;
+      bcrypt3.decodeBase64 = base64_decode;
+      return bcrypt3;
     });
   }
 });
@@ -92304,19 +91927,346 @@ var require_lib13 = __commonJS({
   }
 });
 
-// node_modules/dotenv/config.js
-(function() {
-  require_main().config(
-    Object.assign(
-      {},
-      require_env_options(),
-      require_cli_options()(process.argv)
-    )
-  );
-})();
+// node_modules/dotenv/package.json
+var require_package3 = __commonJS({
+  "node_modules/dotenv/package.json"(exports, module) {
+    module.exports = {
+      name: "dotenv",
+      version: "16.4.5",
+      description: "Loads environment variables from .env file",
+      main: "lib/main.js",
+      types: "lib/main.d.ts",
+      exports: {
+        ".": {
+          types: "./lib/main.d.ts",
+          require: "./lib/main.js",
+          default: "./lib/main.js"
+        },
+        "./config": "./config.js",
+        "./config.js": "./config.js",
+        "./lib/env-options": "./lib/env-options.js",
+        "./lib/env-options.js": "./lib/env-options.js",
+        "./lib/cli-options": "./lib/cli-options.js",
+        "./lib/cli-options.js": "./lib/cli-options.js",
+        "./package.json": "./package.json"
+      },
+      scripts: {
+        "dts-check": "tsc --project tests/types/tsconfig.json",
+        lint: "standard",
+        "lint-readme": "standard-markdown",
+        pretest: "npm run lint && npm run dts-check",
+        test: "tap tests/*.js --100 -Rspec",
+        "test:coverage": "tap --coverage-report=lcov",
+        prerelease: "npm test",
+        release: "standard-version"
+      },
+      repository: {
+        type: "git",
+        url: "git://github.com/motdotla/dotenv.git"
+      },
+      funding: "https://dotenvx.com",
+      keywords: [
+        "dotenv",
+        "env",
+        ".env",
+        "environment",
+        "variables",
+        "config",
+        "settings"
+      ],
+      readmeFilename: "README.md",
+      license: "BSD-2-Clause",
+      devDependencies: {
+        "@definitelytyped/dtslint": "^0.0.133",
+        "@types/node": "^18.11.3",
+        decache: "^4.6.1",
+        sinon: "^14.0.1",
+        standard: "^17.0.0",
+        "standard-markdown": "^7.1.0",
+        "standard-version": "^9.5.0",
+        tap: "^16.3.0",
+        tar: "^6.1.11",
+        typescript: "^4.8.4"
+      },
+      engines: {
+        node: ">=12"
+      },
+      browser: {
+        fs: false
+      }
+    };
+  }
+});
+
+// node_modules/dotenv/lib/main.js
+var require_main = __commonJS({
+  "node_modules/dotenv/lib/main.js"(exports, module) {
+    var fs = __require("fs");
+    var path = __require("path");
+    var os = __require("os");
+    var crypto = __require("crypto");
+    var packageJson = require_package3();
+    var version = packageJson.version;
+    var LINE = /(?:^|^)\s*(?:export\s+)?([\w.-]+)(?:\s*=\s*?|:\s+?)(\s*'(?:\\'|[^'])*'|\s*"(?:\\"|[^"])*"|\s*`(?:\\`|[^`])*`|[^#\r\n]+)?\s*(?:#.*)?(?:$|$)/mg;
+    function parse(src) {
+      const obj = {};
+      let lines = src.toString();
+      lines = lines.replace(/\r\n?/mg, "\n");
+      let match;
+      while ((match = LINE.exec(lines)) != null) {
+        const key = match[1];
+        let value = match[2] || "";
+        value = value.trim();
+        const maybeQuote = value[0];
+        value = value.replace(/^(['"`])([\s\S]*)\1$/mg, "$2");
+        if (maybeQuote === '"') {
+          value = value.replace(/\\n/g, "\n");
+          value = value.replace(/\\r/g, "\r");
+        }
+        obj[key] = value;
+      }
+      return obj;
+    }
+    function _parseVault(options) {
+      const vaultPath = _vaultPath(options);
+      const result = DotenvModule.configDotenv({ path: vaultPath });
+      if (!result.parsed) {
+        const err = new Error(`MISSING_DATA: Cannot parse ${vaultPath} for an unknown reason`);
+        err.code = "MISSING_DATA";
+        throw err;
+      }
+      const keys = _dotenvKey(options).split(",");
+      const length = keys.length;
+      let decrypted;
+      for (let i = 0; i < length; i++) {
+        try {
+          const key = keys[i].trim();
+          const attrs = _instructions(result, key);
+          decrypted = DotenvModule.decrypt(attrs.ciphertext, attrs.key);
+          break;
+        } catch (error) {
+          if (i + 1 >= length) {
+            throw error;
+          }
+        }
+      }
+      return DotenvModule.parse(decrypted);
+    }
+    function _log(message) {
+      console.log(`[dotenv@${version}][INFO] ${message}`);
+    }
+    function _warn(message) {
+      console.log(`[dotenv@${version}][WARN] ${message}`);
+    }
+    function _debug(message) {
+      console.log(`[dotenv@${version}][DEBUG] ${message}`);
+    }
+    function _dotenvKey(options) {
+      if (options && options.DOTENV_KEY && options.DOTENV_KEY.length > 0) {
+        return options.DOTENV_KEY;
+      }
+      if (process.env.DOTENV_KEY && process.env.DOTENV_KEY.length > 0) {
+        return process.env.DOTENV_KEY;
+      }
+      return "";
+    }
+    function _instructions(result, dotenvKey) {
+      let uri;
+      try {
+        uri = new URL(dotenvKey);
+      } catch (error) {
+        if (error.code === "ERR_INVALID_URL") {
+          const err = new Error("INVALID_DOTENV_KEY: Wrong format. Must be in valid uri format like dotenv://:key_1234@dotenvx.com/vault/.env.vault?environment=development");
+          err.code = "INVALID_DOTENV_KEY";
+          throw err;
+        }
+        throw error;
+      }
+      const key = uri.password;
+      if (!key) {
+        const err = new Error("INVALID_DOTENV_KEY: Missing key part");
+        err.code = "INVALID_DOTENV_KEY";
+        throw err;
+      }
+      const environment = uri.searchParams.get("environment");
+      if (!environment) {
+        const err = new Error("INVALID_DOTENV_KEY: Missing environment part");
+        err.code = "INVALID_DOTENV_KEY";
+        throw err;
+      }
+      const environmentKey = `DOTENV_VAULT_${environment.toUpperCase()}`;
+      const ciphertext = result.parsed[environmentKey];
+      if (!ciphertext) {
+        const err = new Error(`NOT_FOUND_DOTENV_ENVIRONMENT: Cannot locate environment ${environmentKey} in your .env.vault file.`);
+        err.code = "NOT_FOUND_DOTENV_ENVIRONMENT";
+        throw err;
+      }
+      return { ciphertext, key };
+    }
+    function _vaultPath(options) {
+      let possibleVaultPath = null;
+      if (options && options.path && options.path.length > 0) {
+        if (Array.isArray(options.path)) {
+          for (const filepath of options.path) {
+            if (fs.existsSync(filepath)) {
+              possibleVaultPath = filepath.endsWith(".vault") ? filepath : `${filepath}.vault`;
+            }
+          }
+        } else {
+          possibleVaultPath = options.path.endsWith(".vault") ? options.path : `${options.path}.vault`;
+        }
+      } else {
+        possibleVaultPath = path.resolve(process.cwd(), ".env.vault");
+      }
+      if (fs.existsSync(possibleVaultPath)) {
+        return possibleVaultPath;
+      }
+      return null;
+    }
+    function _resolveHome(envPath) {
+      return envPath[0] === "~" ? path.join(os.homedir(), envPath.slice(1)) : envPath;
+    }
+    function _configVault(options) {
+      _log("Loading env from encrypted .env.vault");
+      const parsed = DotenvModule._parseVault(options);
+      let processEnv = process.env;
+      if (options && options.processEnv != null) {
+        processEnv = options.processEnv;
+      }
+      DotenvModule.populate(processEnv, parsed, options);
+      return { parsed };
+    }
+    function configDotenv(options) {
+      const dotenvPath = path.resolve(process.cwd(), ".env");
+      let encoding = "utf8";
+      const debug = Boolean(options && options.debug);
+      if (options && options.encoding) {
+        encoding = options.encoding;
+      } else {
+        if (debug) {
+          _debug("No encoding is specified. UTF-8 is used by default");
+        }
+      }
+      let optionPaths = [dotenvPath];
+      if (options && options.path) {
+        if (!Array.isArray(options.path)) {
+          optionPaths = [_resolveHome(options.path)];
+        } else {
+          optionPaths = [];
+          for (const filepath of options.path) {
+            optionPaths.push(_resolveHome(filepath));
+          }
+        }
+      }
+      let lastError;
+      const parsedAll = {};
+      for (const path2 of optionPaths) {
+        try {
+          const parsed = DotenvModule.parse(fs.readFileSync(path2, { encoding }));
+          DotenvModule.populate(parsedAll, parsed, options);
+        } catch (e) {
+          if (debug) {
+            _debug(`Failed to load ${path2} ${e.message}`);
+          }
+          lastError = e;
+        }
+      }
+      let processEnv = process.env;
+      if (options && options.processEnv != null) {
+        processEnv = options.processEnv;
+      }
+      DotenvModule.populate(processEnv, parsedAll, options);
+      if (lastError) {
+        return { parsed: parsedAll, error: lastError };
+      } else {
+        return { parsed: parsedAll };
+      }
+    }
+    function config(options) {
+      if (_dotenvKey(options).length === 0) {
+        return DotenvModule.configDotenv(options);
+      }
+      const vaultPath = _vaultPath(options);
+      if (!vaultPath) {
+        _warn(`You set DOTENV_KEY but you are missing a .env.vault file at ${vaultPath}. Did you forget to build it?`);
+        return DotenvModule.configDotenv(options);
+      }
+      return DotenvModule._configVault(options);
+    }
+    function decrypt(encrypted, keyStr) {
+      const key = Buffer.from(keyStr.slice(-64), "hex");
+      let ciphertext = Buffer.from(encrypted, "base64");
+      const nonce = ciphertext.subarray(0, 12);
+      const authTag = ciphertext.subarray(-16);
+      ciphertext = ciphertext.subarray(12, -16);
+      try {
+        const aesgcm = crypto.createDecipheriv("aes-256-gcm", key, nonce);
+        aesgcm.setAuthTag(authTag);
+        return `${aesgcm.update(ciphertext)}${aesgcm.final()}`;
+      } catch (error) {
+        const isRange = error instanceof RangeError;
+        const invalidKeyLength = error.message === "Invalid key length";
+        const decryptionFailed = error.message === "Unsupported state or unable to authenticate data";
+        if (isRange || invalidKeyLength) {
+          const err = new Error("INVALID_DOTENV_KEY: It must be 64 characters long (or more)");
+          err.code = "INVALID_DOTENV_KEY";
+          throw err;
+        } else if (decryptionFailed) {
+          const err = new Error("DECRYPTION_FAILED: Please check your DOTENV_KEY");
+          err.code = "DECRYPTION_FAILED";
+          throw err;
+        } else {
+          throw error;
+        }
+      }
+    }
+    function populate(processEnv, parsed, options = {}) {
+      const debug = Boolean(options && options.debug);
+      const override = Boolean(options && options.override);
+      if (typeof parsed !== "object") {
+        const err = new Error("OBJECT_REQUIRED: Please check the processEnv argument being passed to populate");
+        err.code = "OBJECT_REQUIRED";
+        throw err;
+      }
+      for (const key of Object.keys(parsed)) {
+        if (Object.prototype.hasOwnProperty.call(processEnv, key)) {
+          if (override === true) {
+            processEnv[key] = parsed[key];
+          }
+          if (debug) {
+            if (override === true) {
+              _debug(`"${key}" is already defined and WAS overwritten`);
+            } else {
+              _debug(`"${key}" is already defined and was NOT overwritten`);
+            }
+          }
+        } else {
+          processEnv[key] = parsed[key];
+        }
+      }
+    }
+    var DotenvModule = {
+      configDotenv,
+      _configVault,
+      _parseVault,
+      config,
+      decrypt,
+      parse,
+      populate
+    };
+    module.exports.configDotenv = DotenvModule.configDotenv;
+    module.exports._configVault = DotenvModule._configVault;
+    module.exports._parseVault = DotenvModule._parseVault;
+    module.exports.config = DotenvModule.config;
+    module.exports.decrypt = DotenvModule.decrypt;
+    module.exports.parse = DotenvModule.parse;
+    module.exports.populate = DotenvModule.populate;
+    module.exports = DotenvModule;
+  }
+});
 
 // src/server.ts
-var import_mongoose4 = __toESM(require_mongoose2());
+var import_mongoose5 = __toESM(require_mongoose2());
 
 // src/app.ts
 var import_express6 = __toESM(require_express2());
@@ -92327,11 +92277,29 @@ var import_express4 = __toESM(require_express2());
 // src/modules/Trip/Trip.routes.ts
 var import_express = __toESM(require_express2());
 
+// src/modules/Trip/Trip.controller.ts
+var import_mongoose2 = __toESM(require_mongoose2());
+
 // src/modules/Trip/Trip.model.ts
 var import_mongoose = __toESM(require_mongoose2());
+
+// src/validation/validateModel.ts
+var validateModel = (model) => {
+  const validationError = model.validateSync();
+  if (validationError) {
+    throw validationError;
+  }
+};
+var validateModel_default = validateModel;
+
+// src/modules/Trip/Trip.model.ts
 var tripSchema = new import_mongoose.default.Schema(
   {
     title: {
+      type: String,
+      required: true
+    },
+    location: {
       type: String,
       required: true
     },
@@ -92343,30 +92311,21 @@ var tripSchema = new import_mongoose.default.Schema(
       type: Date,
       required: true
     },
-    description: {
-      type: String,
-      required: true
-    },
-    location: {
+    notes: {
       type: String,
       required: true
     },
     expenses: {
-      amount: {
-        type: Number,
-        required: true
-      },
-      name: {
-        type: String,
-        required: true
-      }
-    },
-    activities: {
       type: String,
       required: true
     },
-    status: {
-      type: Boolean,
+    activity: {
+      type: String,
+      required: true
+    },
+    userId: {
+      type: import_mongoose.default.Schema.Types.ObjectId,
+      ref: "User",
       required: true
     }
   },
@@ -92374,11 +92333,17 @@ var tripSchema = new import_mongoose.default.Schema(
     timestamps: true
   }
 );
+tripSchema.pre("save", function(next) {
+  validateModel_default(this);
+  next();
+});
 var TripModel = import_mongoose.default.model("Trip", tripSchema);
 var Trip_model_default = TripModel;
 
 // src/middleware/error/AppError.ts
 var AppError = class extends Error {
+  message;
+  statusCode;
   constructor(message, statusCode) {
     super();
     this.message = message;
@@ -92396,10 +92361,11 @@ var NotFoundError = class extends AppError {
 // src/modules/Trip/Trip.controller.ts
 var getTrips = async (req, res, next) => {
   try {
-    const { user } = req;
-    const trips = await Trip_model_default.find({
-      ownerId: user._id
-    }).sort({ name: 1 });
+    const userId = req.user?._id;
+    if (!userId) {
+      throw new Error("User ID not found");
+    }
+    const trips = await Trip_model_default.find({ userId });
     res.json(trips);
   } catch (err) {
     next(err);
@@ -92407,12 +92373,11 @@ var getTrips = async (req, res, next) => {
 };
 var getTripById = async (req, res, next) => {
   try {
-    const { user } = req;
     const { id } = req.params;
-    const trip = await Trip_model_default.findOne({
-      _id: id,
-      ownerId: user._id
-    });
+    if (!import_mongoose2.default.Types.ObjectId.isValid(id)) {
+      throw new NotFoundError("Invalid Trip ID");
+    }
+    const trip = await Trip_model_default.findById(id);
     if (!trip) {
       throw new NotFoundError("Trip not found");
     }
@@ -92423,26 +92388,20 @@ var getTripById = async (req, res, next) => {
 };
 var createTrip = async (req, res, next) => {
   try {
-    const { user } = req;
-    const trip = new Trip_model_default({ ...req.body, ownerId: user._id });
+    const trip = new Trip_model_default(req.body);
     const result = await trip.save();
-    res.json(result);
+    res.status(201).json(result);
   } catch (err) {
     next(err);
   }
 };
 var updateTrip = async (req, res, next) => {
   try {
-    const { user } = req;
     const { id } = req.params;
-    const trip = await Trip_model_default.findOneAndUpdate(
-      {
-        _id: id,
-        ownerId: user._id
-      },
-      req.body,
-      { new: true, runValidators: true }
-    );
+    const trip = await Trip_model_default.findByIdAndUpdate(id, req.body, {
+      new: true,
+      runValidators: true
+    });
     if (!trip) {
       throw new NotFoundError("Trip not found");
     }
@@ -92453,12 +92412,8 @@ var updateTrip = async (req, res, next) => {
 };
 var deleteTrip = async (req, res, next) => {
   try {
-    const { user } = req;
     const { id } = req.params;
-    const trip = await Trip_model_default.findOneAndDelete({
-      _id: id,
-      ownerId: user._id
-    });
+    const trip = await Trip_model_default.findByIdAndDelete(id);
     if (!trip) {
       throw new NotFoundError("Trip not found");
     }
@@ -92469,7 +92424,7 @@ var deleteTrip = async (req, res, next) => {
 };
 
 // src/modules/Trip/Trip.routes.ts
-var router = (0, import_express.Router)();
+var router = import_express.default.Router();
 router.get("/trips", getTrips);
 router.get("/trips/:id", getTripById);
 router.post("/trips", createTrip);
@@ -92478,9 +92433,9 @@ router.delete("/trips/:id", deleteTrip);
 var Trip_routes_default = router;
 
 // src/middleware/error/errorHandlerMiddleware.ts
-var import_mongoose2 = __toESM(require_mongoose2());
+var import_mongoose3 = __toESM(require_mongoose2());
 var errorHandler = (err, req, res, next) => {
-  if (err instanceof import_mongoose2.Error.ValidationError) {
+  if (err instanceof import_mongoose3.Error.ValidationError) {
     return res.status(400).json({
       message: err.message,
       errors: err.errors
@@ -92514,10 +92469,10 @@ var AuthError = class extends AppError {
 var import_passport_local = __toESM(require_lib11());
 
 // src/modules/User/User.model.ts
-var import_mongoose3 = __toESM(require_mongoose2());
+var import_mongoose4 = __toESM(require_mongoose2());
 var import_bcryptjs = __toESM(require_bcryptjs());
 var import_jsonwebtoken = __toESM(require_jsonwebtoken());
-var userSchema = new import_mongoose3.default.Schema(
+var userSchema = new import_mongoose4.default.Schema(
   {
     email: {
       type: String,
@@ -92587,7 +92542,7 @@ userSchema.set("toObject", {
     delete ret.password;
   }
 });
-var UserModel = import_mongoose3.default.model("User", userSchema);
+var UserModel = import_mongoose4.default.model("User", userSchema);
 var User_model_default = UserModel;
 
 // src/middleware/auth/localStrategy.ts
@@ -92617,28 +92572,24 @@ var localStrategy_default = localStrategy;
 
 // src/middleware/auth/jwtStrategy.ts
 var import_passport_jwt = __toESM(require_lib12());
-var import_dotenv = __toESM(require_main());
-import_dotenv.default.config();
-var jwtSecret = process.env.JWT_SECRET;
-if (!jwtSecret) {
-  throw new Error("JWT_SECRET environment variable is not defined");
-}
 var jwtOptions = {
   jwtFromRequest: import_passport_jwt.ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: jwtSecret
+  secretOrKey: process.env.JWT_SECRET || "defaultSecret"
 };
 var jwtStrategy = new import_passport_jwt.Strategy(
   jwtOptions,
-  async (payload, done) => {
-    try {
-      const user = await User_model_default.findById(payload._id);
-      if (!user) {
-        return done(null, false);
+  (payload, done) => {
+    (async () => {
+      try {
+        const user = await User_model_default.findById(payload._id);
+        if (!user) {
+          return done(null, false);
+        }
+        return done(null, user);
+      } catch (e) {
+        return done(e, false);
       }
-      return done(null, user);
-    } catch (e) {
-      return done(e, false);
-    }
+    })();
   }
 );
 var jwtStrategy_default = jwtStrategy;
@@ -92669,26 +92620,86 @@ var authLocal = passportHandler("local");
 var authJwt = passportHandler("jwt");
 
 // src/modules/User/User.controller.ts
+var import_bcryptjs2 = __toESM(require_bcryptjs());
 var login = (req, res, next) => {
   const { user } = req;
   res.json({
     token: user.generateToken()
   });
 };
+var register = async (req, res, next) => {
+  try {
+    const { name, email, password } = req.body;
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: "Name, email, and password are required." });
+    }
+    const existingUser = await User_model_default.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "User already exists." });
+    }
+    const hashedPassword = await import_bcryptjs2.default.hash(password, 10);
+    const newUser = new User_model_default({
+      name,
+      email,
+      password: hashedPassword
+    });
+    await newUser.save();
+    const token = newUser.generateToken();
+    res.status(201).json({ token });
+  } catch (error) {
+    console.error("Error during user registration:", error);
+    res.status(500).json({ message: "Internal Server Error", error });
+    next(error);
+  }
+};
 var getCurrentUser = (req, res, next) => {
   const { user } = req;
   res.json(user);
+};
+var getDashboard = async (req, res, next) => {
+  try {
+    const { user } = req;
+    const trips = await Trip_model_default.countDocuments({ userId: user._id });
+    res.json({
+      trips
+    });
+  } catch (e) {
+    console.error("Error fetching dashboard data:", e);
+    res.status(500).json({ message: "Internal Server Error" });
+    next(e);
+  }
+};
+var updateUser = async (req, res, next) => {
+  try {
+    const { user } = req;
+    const updateData = req.body;
+    const updatedUser = await User_model_default.findByIdAndUpdate(user._id, updateData, {
+      new: true,
+      runValidators: true
+    });
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json(updatedUser);
+  } catch (e) {
+    console.error("Error updating user:", e);
+    res.status(500).json({ message: "Internal Server Error" });
+    next(e);
+  }
 };
 
 // src/modules/User/User.public.routes.ts
 var router2 = (0, import_express2.Router)();
 router2.post("/login", authLocal, login);
+router2.post("/register", register);
 var User_public_routes_default = router2;
 
 // src/modules/User/User.private.routes.ts
 var import_express3 = __toESM(require_express2());
 var router3 = (0, import_express3.Router)();
 router3.get("/users/current", getCurrentUser);
+router3.get("/users/current/dashboard", getDashboard);
+router3.patch("/users/:id", updateUser);
 var User_private_routes_default = router3;
 
 // src/routes/index.ts
@@ -93255,9 +93266,11 @@ registerRoutes(app);
 var app_default = app;
 
 // src/server.ts
+var dotenv = require_main();
+dotenv.config();
 var port = parseInt(process.env.PORT ?? "3002");
 if (process.env.MONGO_CONNECTION) {
-  import_mongoose4.default.connect(process.env.MONGO_CONNECTION).then(() => {
+  import_mongoose5.default.connect(process.env.MONGO_CONNECTION).then(() => {
     console.log("Connected to MongoDB");
     const server = app_default.listen(port, () => {
       console.log(`Server is running on port http://localhost:${port}`);
@@ -93269,7 +93282,7 @@ if (process.env.MONGO_CONNECTION) {
   throw new Error("No MongoDB connection string");
 }
 var stopServer = (server) => {
-  import_mongoose4.default.connection.close();
+  import_mongoose5.default.connection.close();
   server.close(() => {
     console.log("Server closed");
     process.exit();

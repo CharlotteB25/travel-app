@@ -1,9 +1,10 @@
 import { LitElement, css, html } from "lit";
+
 import { customElement, property } from "lit/decorators.js";
 
 import "@components/design/LoadingIndicator";
 import "@components/design/ErrorView";
-import { login } from "@core/modules/auth/Auth.api";
+import { register } from "@core/modules/auth/Auth.api";
 import * as Storage from "@core/storage";
 import { Router } from "@vaadin/router";
 import {
@@ -12,85 +13,55 @@ import {
   formStyles,
 } from "@components/style/styles";
 
-<<<<<<< HEAD
-import "@components/design/ErrorView";
-
-=======
->>>>>>> updated
-@customElement("login-page")
-class Login extends LitElement {
+@customElement("register-page")
+class Register extends LitElement {
   @property()
   isLoading: boolean = false;
-<<<<<<< HEAD
-=======
 
->>>>>>> updated
   @property()
   error: string | null = null;
 
-  handleSubmit(event: Event) {
+  async handleSubmit(event: Event) {
     event.preventDefault();
     const formData = new FormData(event.target as HTMLFormElement);
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
+    const name = formData.get("name") as string;
 
     this.isLoading = true;
 
-    login({ email, password })
-      .then(({ data }) => {
-        this.isLoading = false;
-        Storage.saveAuthToken(data.token);
-        Router.go("/");
-      })
-      .catch((error) => {
-        this.isLoading = false;
-<<<<<<< HEAD
-        this.error = error.message;
-=======
-
-        // Handle specific error responses
-        if (error.response) {
-          const { status, data } = error.response;
-
-          if (status === 401) {
-            this.error = "Invalid email or password. Please try again.";
-          } else if (status === 404) {
-            this.error =
-              "No account found with this email. Please register first.";
-          } else {
-            this.error =
-              data.message ||
-              "An error occurred during login. Please try again.";
-          }
-        } else {
-          this.error =
-            error.message || "An unexpected error occurred. Please try again.";
-        }
->>>>>>> updated
-      });
+    try {
+      const { data } = await register({ email, password, name });
+      this.isLoading = false;
+      Storage.saveAuthToken(data.token);
+      Router.go("/");
+    } catch (error: any) {
+      this.isLoading = false;
+      this.error = error.message;
+    }
   }
 
   render() {
-<<<<<<< HEAD
-    const { isLoading, error, handleSubmit } = this;
-
-    return html`
-      <div class="split">
-        <img class="split__image" src="/home-image.webp" />
-        <div class="split__content">
-          <app-logo></app-logo>
-          ${error ? html`<error-view error=${error} />` : ""}
-          <form @submit=${handleSubmit}>
-=======
     const { isLoading, error } = this;
 
     return html`
-      <div class="container">
-        <div class="form-wrapper">
+      <div class="split">
+        <div class="split__content">
           <app-logo></app-logo>
           ${error ? html`<error-view error="${error}"></error-view>` : ""}
           <form @submit=${this.handleSubmit}>
->>>>>>> updated
+            <div class="form-control">
+              <label class="form-control__label" for="name">Name</label>
+              <input
+                class="form-control__input"
+                type="text"
+                name="name"
+                id="name"
+                placeholder="John Doe"
+                ?disabled=${isLoading}
+                required
+              />
+            </div>
             <div class="form-control">
               <label class="form-control__label" for="email">Email</label>
               <input
@@ -114,14 +85,8 @@ class Login extends LitElement {
                 required
               />
             </div>
-<<<<<<< HEAD
-=======
-            <div class="form-control">
-              <a href="/register">Don't have an account? Register</a>
-            </div>
->>>>>>> updated
             <button class="btn-primary" type="submit" ?disabled=${isLoading}>
-              Login
+              Register
             </button>
           </form>
         </div>
@@ -134,46 +99,37 @@ class Login extends LitElement {
     formStyles,
     buttonStyles,
     css`
-<<<<<<< HEAD
       .split {
         display: flex;
         height: 100vh;
         width: 100vw;
         align-items: center;
+        justify-content: center; /* Center content horizontally */
       }
+
       .split__image {
         width: 60vw;
         height: 100vh;
         object-fit: cover;
-      }
-      .split__content {
-        flex: 1;
-        padding: 5rem 2rem;
-      }
-      .form {
-        margin-top: 1rem;
-=======
-      .container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        width: 100vw;
-        background: var(
-          --background-color,
-          #f0f0f0
-        ); /* Optional background color */
+        position: absolute; /* Ensure the image is positioned behind content */
+        top: 0;
+        left: 0;
+        z-index: -1; /* Send image to background */
       }
 
-      .form-wrapper {
+      .split__content {
         display: flex;
         flex-direction: column;
         align-items: center;
-        padding: 2rem;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        background: #fff;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 5rem 2rem;
+        background: rgba(
+          255,
+          255,
+          255,
+          0.8
+        ); /* Optional: add background color with opacity for better readability */
+        border-radius: 8px; /* Optional: add border-radius */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: add shadow */
       }
 
       .form-control {
@@ -203,10 +159,9 @@ class Login extends LitElement {
 
       .form-control a:hover {
         text-decoration: underline;
->>>>>>> updated
       }
     `,
   ];
 }
 
-export default Login;
+export default Register;

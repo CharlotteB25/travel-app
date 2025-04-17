@@ -14,10 +14,9 @@ const jwtOptions = {
 const jwtStrategy = new JWTStrategy(
   jwtOptions,
   (payload: any, done: VerifiedCallback) => {
-    // console.log("🔑 JWT Payload:", payload);
     (async () => {
       try {
-        const user = await UserModel.findById(payload.id);
+        const user = await UserModel.findById(payload._id);
 
         if (!user) {
           return done(null, false);

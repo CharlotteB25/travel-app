@@ -34,7 +34,10 @@ class AuthContainer extends LitElement {
       const token = Storage.getAuthToken();
       if (token) {
         config.headers["Authorization"] = `Bearer ${token}`;
+<<<<<<< HEAD
         console.log("sending token", token);
+=======
+>>>>>>> updated
       }
       return config;
     });

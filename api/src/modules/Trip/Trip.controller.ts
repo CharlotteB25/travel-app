@@ -5,13 +5,15 @@ import NotFoundError from "../../middleware/error/NotFoundError";
 
 const getTrips = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    // Ensure user is authenticated
-    if (!req.user) {
-      return res.status(401).json({ message: "Unauthorized: Please log in" });
+    // Assuming req.user contains the authenticated user's ID
+    const userId = (req.user as { _id: string })?._id;
+
+    if (!userId) {
+      throw new Error("User ID not found");
     }
 
-    // Fetch only the trips that belong to the logged-in user
-    const trips = await Trip.find({ user: (req.user as any).id });
+    // Fetch only the trips that belong to the current user
+    const trips = await Trip.find({ userId });
 
     res.json(trips);
   } catch (err) {

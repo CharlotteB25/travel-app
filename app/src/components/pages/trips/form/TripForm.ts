@@ -8,6 +8,7 @@ import { Router } from "@vaadin/router";
 import { AxiosResponse } from "axios";
 import { LitElement, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
+import { getCurrentUser } from "@core/modules/user/User.api"; // Import your getCurrentUser function
 
 @customElement("trip-form")
 class TripForm extends LitElement {
@@ -30,14 +31,34 @@ class TripForm extends LitElement {
     activity: "",
     expenses: "",
     notes: "",
-    startDate: "",
-    endDate: "",
+    startDate: new Date(), // Initialize as Date objects
+    endDate: new Date(),
+    userId: "", // Initialize as an empty string
   };
+
+  @property()
+  userId: string = ""; // Add this property
+
+  async firstUpdated() {
+    await this.loadCurrentUser();
+  }
+
+  async loadCurrentUser() {
+    try {
+      const response = await getCurrentUser(); // Fetch the current user
+      this.userId = response.data._id; // Set the userId
+      console.log("Current user:", response.data); // Debug log
+    } catch (error) {
+      console.error("Failed to load current user:", error);
+      this.error = "Failed to load user data";
+    }
+  }
 
   handleSubmit = (event: Event) => {
     event.preventDefault();
 
-    if (!this.method) {
+    if (!this.method || !this.userId) {
+      console.error("Method or userId not available.");
       return;
     }
 
@@ -49,8 +70,9 @@ class TripForm extends LitElement {
       activity: formData.get("activity") as string,
       expenses: formData.get("expenses") as string,
       notes: formData.get("notes") as string,
-      startDate: formData.get("startDate") as string,
-      endDate: formData.get("endDate") as string,
+      startDate: new Date(formData.get("startDate") as string), // Convert to Date
+      endDate: new Date(formData.get("endDate") as string), // Convert to Date
+      userId: this.userId, // Use the userId property
     };
 
     console.log("Submitting trip data:", trip); // Debug log
@@ -63,11 +85,27 @@ class TripForm extends LitElement {
       .catch((error) => {
         this.error = error.message || "An error occurred";
         console.error("Error creating trip:", error); // Debug log
+
+        // Log the server's error response if available
+        if (error.response) {
+          console.error("Server responded with:", error.response.data);
+        }
       })
       .finally(() => {
         this.isLoading = false;
       });
   };
+
+  // Helper function to format Date objects as YYYY-MM-DD strings
+  formatDate(date: Date | string): string {
+    if (date instanceof Date) {
+      return date.toISOString().split("T")[0];
+    } else if (typeof date === "string") {
+      const parsedDate = new Date(date);
+      return parsedDate.toISOString().split("T")[0];
+    }
+    return "";
+  }
 
   render() {
     const { isLoading, handleSubmit, data, submitLabel, error } = this;
@@ -148,7 +186,7 @@ class TripForm extends LitElement {
             type="date"
             name="startDate"
             id="startDate"
-            .value=${data.startDate}
+            .value=${this.formatDate(data.startDate)}
             placeholder="2023-05-17"
             ?disabled=${isLoading}
             required
@@ -161,7 +199,7 @@ class TripForm extends LitElement {
             type="date"
             name="endDate"
             id="endDate"
-            .value=${data.endDate}
+            .value=${this.formatDate(data.endDate)}
             placeholder="2023-05-28"
             ?disabled=${isLoading}
             required

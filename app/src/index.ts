@@ -71,6 +71,13 @@ const routes = [
         ],
       },
       {
+        path: "register",
+        component: "register-page",
+        action: async () => {
+          await import("@components/auth/Register");
+        },
+      },
+      {
         path: "login",
         component: "login-page",
         action: async () => {

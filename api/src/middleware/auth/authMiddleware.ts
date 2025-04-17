@@ -14,18 +14,15 @@ export interface AuthRequest extends Request {
 
 const passportHandler = (strategy: string) => {
   return function (req: Request, res: Response, next: NextFunction) {
-    // console.log("🔑 Incoming Request Headers:", req.headers); // Log headers to check for Authorization
-
     passport.authenticate(
       strategy,
       { session: false },
       function (err: any, user?: User | false) {
-        console.log("checking token:", req.headers.authorization);
         if (err) {
           return next(err);
         }
         if (!user) {
-          return res.status(401).json({ error: "Unauthorized" });
+          return next(new AuthError());
         } else {
           req.user = user;
           return next();

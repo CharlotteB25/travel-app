@@ -6,6 +6,10 @@ import { getTrips } from "@core/modules/trips/Trip.api";
 import { Trip } from "@core/modules/trips/Trip.types";
 import userContext from "@components/auth/userContext";
 import { consume } from "@lit/context";
+<<<<<<< HEAD
+=======
+import { getCurrentUser } from "@core/modules/user/User.api"; // Import the necessary API methods
+>>>>>>> updated
 
 import "@components/design/LoadingIndicator";
 import "@components/design/ErrorView";
@@ -19,12 +23,25 @@ import "@components/design/Grid/Grid";
 class Home extends LitElement {
   @property()
   isLoading: boolean = false;
+<<<<<<< HEAD
   @property()
   trips: Array<Trip> | null = null;
   @property()
   error: string | null = null;
   @property()
   data: DashboardData | null = null;
+=======
+
+  @property()
+  trips: Array<Trip> | null = null;
+
+  @property()
+  error: string | null = null;
+
+  @property()
+  data: DashboardData | null = null;
+
+>>>>>>> updated
   @consume({ context: userContext, subscribe: true })
   @property({ attribute: false })
   public user?: User | null;
@@ -32,6 +49,7 @@ class Home extends LitElement {
   // called when the element is first connected to the document’s DOM
   connectedCallback(): void {
     super.connectedCallback();
+<<<<<<< HEAD
     this.fetchItems();
   }
 
@@ -47,6 +65,42 @@ class Home extends LitElement {
         this.error = error.message;
         this.isLoading = false;
       });
+=======
+    this.fetchUserData();
+  }
+
+  async fetchUserData() {
+    this.isLoading = true;
+    try {
+      // Fetch the current user data
+      const userResponse = await getCurrentUser();
+      this.user = userResponse.data;
+
+      // Fetch trips for the current user using the userId from the user data
+      if (this.user && this.user._id) {
+        const tripsResponse = await getTrips();
+        const allTrips = tripsResponse.data;
+
+        // Filter trips to only include those with endDate later than today
+        const today = new Date();
+        this.trips = allTrips.filter((trip) => {
+          const tripStartDate = new Date(trip.startDate);
+          return tripStartDate >= today;
+        });
+      } else {
+        this.error = "User data is missing or invalid";
+        this.trips = null;
+      }
+
+      this.error = null;
+    } catch (error: any) {
+      this.error = "Failed to load user data or trips";
+      this.user = null;
+      this.trips = null;
+    } finally {
+      this.isLoading = false;
+    }
+>>>>>>> updated
   }
 
   render() {
@@ -54,6 +108,7 @@ class Home extends LitElement {
 
     let content = html``;
     if (error) {
+<<<<<<< HEAD
       content = html`<error-view error=${error} />`;
     } else if (isLoading || !trips) {
       content = html`<loading-indicator></loading-indicator>`;
@@ -64,6 +119,18 @@ class Home extends LitElement {
         ${trips.map((c) => {
           return html`<li>
             <app-card href="/trips/${c._id}">${c.title}</app-card>
+=======
+      content = html`<error-view error=${error}></error-view>`;
+    } else if (isLoading || !trips) {
+      content = html`<loading-indicator></loading-indicator>`;
+    } else if (trips.length === 0) {
+      content = html`<p>No upcoming trips found</p>`;
+    } else {
+      content = html`<app-grid>
+        ${trips.map((trip) => {
+          return html`<li>
+            <app-card href="/trips/${trip._id}">${trip.title}</app-card>
+>>>>>>> updated
           </li>`;
         })}
       </app-grid>`;
@@ -71,8 +138,15 @@ class Home extends LitElement {
 
     return html`
       <app-page-header>
+<<<<<<< HEAD
         <app-page-title>Welcome ${this.user?.name}</app-page-title>
       </app-page-header>
+=======
+        <app-page-title>Welcome, ${this.user?.name}</app-page-title>
+      </app-page-header>
+      <h2>Upcoming trips:</h2>
+
+>>>>>>> updated
       ${content}
     `;
   }

@@ -3,15 +3,20 @@ import { customElement, property } from "lit/decorators.js";
 import { defaultStyles } from "@components/style/styles";
 import { UserBody } from "@core/modules/user/User.types";
 import { getCurrentUser, updateUser } from "@core/modules/user/User.api"; // Import the necessary API methods
-
+import { consume } from "@lit/context";
+import { UserContext, userContext } from "./settingsContainer";
 import "@components/design/Typography/PageTitle";
 import "@components/design/Header/PageHeader";
 import "./SettingsForm"; // Import the form component
-
+import { User } from "@core/modules/user/User.types";
 @customElement("settings-page")
 class SettingsPage extends LitElement {
+  @consume({ context: userContext, subscribe: true })
+  @property({ attribute: false })
+  public userContextValue?: UserContext | null;
+
   @property({ type: Object })
-  user: UserBody | null = null;
+  user: User | null = null;
 
   @property({ type: Boolean })
   isLoading: boolean = false;
@@ -29,6 +34,7 @@ class SettingsPage extends LitElement {
     try {
       const response = await getCurrentUser(); // Fetch the current user data
       this.user = response.data;
+      // console.log(this.user);
       this.error = null;
     } catch (error) {
       this.error = "Failed to load user data";
@@ -57,6 +63,8 @@ class SettingsPage extends LitElement {
       return html`<p>No user data available</p>`;
     }
 
+    //console.log(user._id);
+
     return html`
       <app-page-header>
         <app-page-title>Settings</app-page-title>
@@ -65,7 +73,7 @@ class SettingsPage extends LitElement {
         submitLabel="Save"
         .onSuccess=${this.handleSuccess}
         .data=${user}
-        .method=${(body: UserBody) => updateUser(user.name, body)}
+        .method=${(body: UserBody) => updateUser(user._id, body)}
       ></settings-form>
     `;
   }

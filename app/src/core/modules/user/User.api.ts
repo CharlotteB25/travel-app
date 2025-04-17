@@ -10,5 +10,5 @@ export const getDashboardData = () => {
 };
 
 export const updateUser = (id: string, body: UserBody) => {
-  return API.put<User>(`/users/${id}`, body);
+  return API.patch<User>(`/users/${id}`, body);
 };

@@ -1,21 +1,18 @@
 import express from "express";
 import {
-  getTrips,
   createTrip,
   getTripById,
+  getTrips,
   updateTrip,
   deleteTrip,
 } from "./Trip.controller";
 
-import { authJwt } from "../../middleware/auth/authMiddleware";
-
 const router = express.Router();
 
-// Protected routes
-router.get("/trips", authJwt, getTrips); // GET request for trips
-router.get("/trips/:id", authJwt, getTripById); // GET request for a single trip by ID
-router.post("/trips", authJwt, createTrip); // POST request to create a new trip
-router.patch("/trips/:id", authJwt, updateTrip); // PATCH request to update a trip
-router.delete("/trips/:id", authJwt, deleteTrip); // DELETE request to delete a trip
+router.get("/trips", getTrips);
+router.get("/trips/:id", getTripById);
+router.post("/trips", createTrip);
+router.patch("/trips/:id", updateTrip);
+router.delete("/trips/:id", deleteTrip);
 
 export default router;

@@ -7,10 +7,10 @@ export default defineConfig({
       "@components": path.resolve(__dirname, "./src/components"),
       "@core": path.resolve(__dirname, "./src/core"),
       "@assets": path.resolve(__dirname, "./src/assets"),
-      "@styles": path.resolve(__dirname, "./src/styles"),
+      "@style": path.resolve(__dirname, "./src/style"),
     },
   },
-  server: {
+  /*  server: {
     proxy: {
       "/api": {
         target: "http://127.0.0.1:3002", // Your backend server
@@ -18,5 +18,5 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
     },
-  },
+  }, */
 });

@@ -15,11 +15,6 @@ const registerRoutes = (app: Express) => {
 
   app.use(authJwt, authRoutes);
 
-  // 404 handler
-  app.use("*", (req, res) => {
-    res.status(404).json({ message: "Route not found" });
-  });
-
   // should be placed AFTER all routes
   app.use(errorHandler);
 };
