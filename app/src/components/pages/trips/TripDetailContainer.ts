@@ -1,16 +1,19 @@
 import { LitElement, html } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 import { router } from "@core/router";
 import { defaultStyles } from "@components/style/styles";
 import { createContext, provide } from "@lit/context";
 import { Trip } from "@core/modules/trips/Trip.types";
-import { getTripById } from "@core/modules/trips/Trip.api";
+import { getTripById, deleteTrip } from "@core/modules/trips/Trip.api";
 
 import "@components/design/LoadingIndicator";
 import "@components/design/ErrorView";
 
 export type TripContext = {
   trip: Trip | null;
+  weatherData: any;
+  countdownDays: number;
+  handleDelete: () => void;
   refresh: () => void;
 };
 
@@ -18,74 +21,91 @@ export const tripContext = createContext<TripContext | null>("trip");
 
 @customElement("trip-detail-container")
 class TripDetailContainer extends LitElement {
-  @property()
-  isLoading: boolean = false;
-  @provide({ context: tripContext })
-  tripContext: TripContext | null = null;
-  @property()
-  error: string | null = null;
-
   @property({ type: Object }) location = router.location;
+  @provide({ context: tripContext }) tripContext: TripContext | null = null;
 
-  // called when the element is first connected to the document’s DOM
+  @state() isLoading = false;
+  @state() error: string | null = null;
+  @state() private weatherData: any = null;
+  @state() private trip: Trip | null = null;
+
   connectedCallback(): void {
     super.connectedCallback();
-    this.tripContext = {
-      trip: null,
-      refresh: this.fetchItem,
-    };
     this.fetchItem();
   }
 
-  // arrow function! otherwise "this" won't work in context provider
-  fetchItem = () => {
-    if (
-      !this.location.params.id ||
-      typeof this.location.params.id !== "string"
-    ) {
-      return;
-    }
+  fetchItem = async () => {
+    const tripId = this.location.params.id;
+    if (!tripId || typeof tripId !== "string") return;
 
     this.isLoading = true;
-
-    //this is to get the trip by id from the API and set the tripContext to the response to be able to use it in the child components of this container
-    getTripById(this.location.params.id)
-      .then(({ data }) => {
-        this.tripContext = {
-          trip: data,
-          refresh: this.fetchItem,
-        };
-        this.isLoading = false;
-      })
-      .catch((error) => {
-        this.error = error.message;
-        this.isLoading = false;
-      });
+    try {
+      const { data } = await getTripById(tripId);
+      this.trip = data;
+      this.fetchWeather(data.location);
+    } catch (err: any) {
+      this.error = err.message;
+    } finally {
+      this.isLoading = false;
+      this.updateContext();
+    }
   };
 
+  updateContext() {
+    const countdown = this.trip
+      ? this.getCountdownDays(this.trip.startDate.toISOString())
+      : 0;
+
+    this.tripContext = {
+      trip: this.trip,
+      weatherData: this.weatherData,
+      countdownDays: countdown,
+      handleDelete: this.handleDelete,
+      refresh: this.fetchItem,
+    };
+  }
+
+  async fetchWeather(location: string) {
+    const apiKey = import.meta.env.VITE_WEATHER_API;
+    const url = `https://api.openweathermap.org/data/2.5/weather?q=${location}&units=metric&appid=${apiKey}`;
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`Error: ${response.status}`);
+      this.weatherData = await response.json();
+    } catch (err) {
+      console.error("Weather fetch failed:", err);
+      this.weatherData = null;
+    } finally {
+      this.updateContext();
+    }
+  }
+
+  async handleDelete() {
+    if (!this.trip) return;
+    try {
+      await deleteTrip(this.trip._id);
+      window.location.href = "/trips";
+    } catch (err) {
+      console.error("Delete failed:", err);
+      alert("Failed to delete trip. Please try again.");
+    }
+  }
+
+  getCountdownDays(startDate: string): number {
+    const tripStart = new Date(startDate);
+    const today = new Date();
+    return Math.ceil(
+      (tripStart.getTime() - today.getTime()) / (1000 * 3600 * 24)
+    );
+  }
+
   render() {
-    const { isLoading, tripContext, error } = this;
-
-    if (!tripContext) {
-      return html``;
-    }
-
-    const { trip } = tripContext;
-
-    if (error) {
-      return html`<error-view error=${error} />`;
-    }
-
-    if (isLoading || !trip) {
-      return html`<loading-indicator></loading-indicator>`;
-    }
-
-    return html`<slot></slot>`;
+    if (this.error) return html`<error-view error=${this.error} />`;
+    if (this.isLoading || !this.trip) return html`<loading-indicator />`;
+    return html`<slot />`;
   }
 
   static styles = [defaultStyles];
 }
 
 export default TripDetailContainer;
-
-//the point of this detail container is to fetch the trip by id from the API and then provide it to the child components of this container. should have added the weather api call here as well but I didn't have time to do that. and should have added the delete trip functionality here as well but I didn't have time to do that. I will do that in the future. so that i can keep the detail page tidy and clean.
