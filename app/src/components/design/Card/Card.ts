@@ -22,19 +22,23 @@ class Card extends LitElement {
       .card {
         display: block;
         padding: 1rem 1rem;
-        background-color: white;
+        background-color: var(--surface);
+        border: 1px solid var(--border-color);
         border-radius: var(--border-radius);
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        box-shadow: var(--shadow-sm);
         height: 100%;
+        color: var(--text-color);
       }
 
       .card--clickable {
         text-decoration: none;
-        transition: all 0.2s ease-in-out;
+        transition: transform 0.15s ease, box-shadow 0.15s ease,
+          opacity 0.15s ease;
       }
-
       .card--clickable:hover {
-        opacity: 0.8;
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+        opacity: 1; /* keep text crisp */
       }
     `,
     defaultStyles,
