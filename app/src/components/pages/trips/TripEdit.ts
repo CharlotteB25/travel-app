@@ -6,7 +6,6 @@ import { TripContext, tripContext } from "./TripDetailContainer";
 import { TripBody } from "@core/modules/trips/Trip.types";
 import { updateTrip } from "@core/modules/trips/Trip.api";
 
-import "@components/pages/trips/form/TripForm";
 import "@components/design/Typography/PageTitle";
 import "@components/design/Header/PageHeader";
 
