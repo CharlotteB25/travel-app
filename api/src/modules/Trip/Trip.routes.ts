@@ -6,9 +6,12 @@ import {
   updateTrip,
   deleteTrip,
 } from "./Trip.controller";
+import requireAuth from "../../middleware/auth/jwtStrategy"; // your JWT middleware
 
 const router = express.Router();
 
+/* router.use(requireAuth); // protect everything below
+ */
 router.get("/trips", getTrips);
 router.get("/trips/:id", getTripById);
 router.post("/trips", createTrip);
