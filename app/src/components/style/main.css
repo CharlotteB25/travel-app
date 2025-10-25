@@ -10,14 +10,14 @@
   /* Treat primary as accent (Old Burgundy), secondary as Pastel Blue, tertiary as a lighter Pastel Blue variant */
   --primary: var(--old-burgundy);
   --primary900: #2e211f; /* deeper burgundy for text emphasis if needed */
-  --secondary: var(--buttermilk);
+  --secondary: var(--pastel-blue);
   --tertiary: #d9eaf2; /* a slightly lighter blue for subtle fills */
 
   --gray: #6f6e6b;
   --gray100: #e9e9e7;
 
   /* 60% background */
-  --background: var(--pastel-blue);
+  --background: var(--buttermilk);
 
   /* Status colors (optional, keep yours or use these) */
   --red: #db3b5a;
@@ -50,7 +50,11 @@
 }
 
 body {
-  background: linear-gradient(180deg, var(--background) 0%, #fff 100%);
+  background-image: url("../../assets/images/dark-blue-marble-wave-background.jpg");
+  /*   credits - Rawpixel.com on Freepik
+ */
+  background-size: cover;
+  background-color: var(--buttermilk);
   font-family: var(--font-sans);
   color: var(--text-color);
 }

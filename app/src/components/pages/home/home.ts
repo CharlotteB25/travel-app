@@ -173,6 +173,9 @@ class Home extends LitElement {
         max-width: 1200px;
         margin: 0 auto;
         padding: 1.5rem 1rem;
+        background: img(
+          url("/src/assets/dark-blue-marble-wave-background.jpg")
+        );
       }
 
       /* Hero uses 60/30/10 via tokens:

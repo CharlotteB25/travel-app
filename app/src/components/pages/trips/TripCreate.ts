@@ -363,7 +363,7 @@ class TripCreate extends LitElement {
             paidBy: e.paidBy?.trim() || undefined,
           })),
       };
-
+      console.log("createTrip payload:", payload);
       await createTrip(payload as any);
       // Redirect done by router in your form or upper layer; if not, we can:
       Router.go("/trips");
@@ -574,20 +574,6 @@ class TripCreate extends LitElement {
                           .value=${a.time ?? ""}
                           @input=${(e: any) =>
                             this.updateActivity(a.id, "time", e.target.value)}
-                        />
-                      </label>
-
-                      <label class="field">
-                        <span class="label">Location</span>
-                        <input
-                          class="input"
-                          .value=${a.location ?? ""}
-                          @input=${(e: any) =>
-                            this.updateActivity(
-                              a.id,
-                              "location",
-                              e.target.value
-                            )}
                         />
                       </label>
 

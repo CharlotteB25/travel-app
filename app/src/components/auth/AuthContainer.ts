@@ -103,8 +103,6 @@ class AuthContainer extends LitElement {
       :host {
         display: block;
         min-height: 100dvh;
-        background: linear-gradient(180deg, var(--background) 0%, #fff 100%);
-        color: var(--text-color);
       }
 
       /* Skip link */
