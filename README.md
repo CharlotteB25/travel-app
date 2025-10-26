@@ -11,3 +11,4 @@ https://travel-app-wx5p.onrender.com
 To Do:
 Fix trips detail page layout
 Edit settings/profile page layout
+Add favicon 🔥
