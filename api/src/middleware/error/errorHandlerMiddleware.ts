@@ -8,12 +8,7 @@ export const errorHandler = (
   res: Response,
   next: NextFunction
 ) => {
-  console.log(
-    "ERROR kill it:",
-    err.name,
-    err.message,
-    (err as any).errors || {}
-  );
+  console.log("ERROR:", err.name, err.message, (err as any).errors || {});
   // Mongoose validation error
   if (err instanceof Error.ValidationError) {
     return res.status(400).json({
