@@ -1,3 +1,4 @@
+// settings-form.ts
 import { LitElement, html, css } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { UserBody } from "@core/modules/user/User.types";
@@ -7,7 +8,6 @@ import {
   inputStyles,
   buttonStyles,
 } from "@components/style/styles";
-
 import "@components/design/Header/PageHeader";
 import "@components/design/Typography/PageTitle";
 import "@components/design/Button/Button";
@@ -19,42 +19,30 @@ class SettingsForm extends LitElement {
   @property({ type: String }) error: string | null = null;
   @property({ type: String }) successMessage: string | null = null;
   @property({ type: String }) submitLabel = "Save";
+  @property() method:
+    | ((user: UserBody) => Promise<AxiosResponse<UserBody>>)
+    | null = null;
 
-  @property()
-  method: ((user: UserBody) => Promise<AxiosResponse<UserBody>>) | null = null;
-
-  @property()
-  data: UserBody = {
-    name: "",
-    email: "",
-    password: "", // optional: blank means "don’t change"
-  };
+  @property() data: UserBody = { name: "", email: "", password: "" };
 
   private handleSubmit = (event: Event) => {
     event.preventDefault();
     if (!this.method) return;
-
     const form = event.target as HTMLFormElement;
     const formData = new FormData(form);
 
-    // build payload; omit password if left blank
     const payload: UserBody = {
       name: (formData.get("name") as string)?.trim(),
       email: (formData.get("email") as string)?.trim(),
       password: (formData.get("password") as string) || "",
     };
-
-    if (!payload.password) {
-      // @ts-ignore — password is optional on update
-      delete payload.password;
-    }
+    if (!payload.password) delete (payload as any).password;
 
     this.isLoading = true;
     this.method(payload)
       .then(() => {
         this.successMessage = "Settings updated successfully!";
         this.error = null;
-        // keep password input empty after save
         this.data = { ...this.data, password: "" };
       })
       .catch((err) => {
@@ -64,19 +52,13 @@ class SettingsForm extends LitElement {
           "An error occurred while saving your settings.";
         this.successMessage = null;
       })
-      .finally(() => {
-        this.isLoading = false;
-      });
+      .finally(() => (this.isLoading = false));
   };
 
   render() {
     const { isLoading, data, submitLabel, error, successMessage } = this;
 
     return html`
-      <app-page-header>
-        <app-page-title>Profile settings</app-page-title>
-      </app-page-header>
-
       <section class="wrap">
         ${error
           ? html`<div class="notice notice--error" role="alert">${error}</div>`
@@ -89,6 +71,8 @@ class SettingsForm extends LitElement {
 
         <app-card class="card">
           <form class="form" @submit=${this.handleSubmit} novalidate>
+            <h3 class="card__title">Profile</h3>
+
             <div class="grid">
               <label class="field">
                 <span class="label">Name</span>
@@ -151,21 +135,24 @@ class SettingsForm extends LitElement {
     css`
       :host {
         display: block;
-        padding: 1rem;
-        max-width: 760px;
-        margin: 0 auto;
       }
 
       .wrap {
         display: grid;
-        gap: 0.75rem;
+        gap: 1rem;
       }
 
       .card {
-        /* soften the surface inside buttermilk background */
-        background: var(--surface);
-        box-shadow: var(--shadow-md);
-        border: 1px solid var(--border-color);
+        --radius-lg: 16px;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-lg);
+        padding: clamp(1rem, 2vw, 1.25rem);
+      }
+
+      .card__title {
+        margin: 0 0 0.75rem;
+        font-size: 1.3rem;
+        color: var(--primary);
       }
 
       .form {
@@ -203,8 +190,8 @@ class SettingsForm extends LitElement {
       .input {
         background: #fff;
         border: 1px solid var(--border-color);
-        border-radius: var(--border-radius);
-        padding: 0.7rem 0.9rem;
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
         color: var(--text-color);
         box-shadow: var(--shadow-sm);
         transition: box-shadow 120ms ease, border-color 120ms ease;
@@ -220,7 +207,7 @@ class SettingsForm extends LitElement {
         outline: none;
         border-color: var(--primary);
         box-shadow: 0 0 0 3px
-          color-mix(in srgb, var(--primary) 25%, transparent);
+          color-mix(in srgb, var(--primary) 20%, transparent);
       }
 
       .help {
@@ -236,7 +223,7 @@ class SettingsForm extends LitElement {
 
       .notice {
         padding: 0.75rem 0.9rem;
-        border-radius: var(--border-radius);
+        border-radius: 12px;
         border: 1px solid var(--border-color);
         box-shadow: var(--shadow-sm);
         font-size: 0.95rem;
@@ -256,7 +243,6 @@ class SettingsForm extends LitElement {
         color: var(--primary);
       }
 
-      /* button inherits your .btn-primary styles from buttonStyles */
       .btn-primary[disabled] {
         opacity: 0.7;
         cursor: not-allowed;

@@ -20,6 +20,16 @@ class TripDetail extends LitElement {
     return dt.toLocaleDateString();
   }
 
+  private fmt = new Intl.DateTimeFormat(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+
+  private money(currency: string) {
+    return new Intl.NumberFormat(undefined, { style: "currency", currency });
+  }
+
   private totalExpenses(
     expenses: Array<{ amount?: number; currency?: string }>,
     fallbackCurrency: string
@@ -84,7 +94,7 @@ class TripDetail extends LitElement {
 
     return html`
       <div class="wrap">
-        <app-page-header>
+        <app-page-header class="page__header">
           <div class="header">
             <div class="header__title">
               <app-page-title>${trip.title}</app-page-title>
@@ -93,32 +103,40 @@ class TripDetail extends LitElement {
             <p class="subhead">
               <span class="place">${trip.location}</span>
               <span class="dot">•</span>
-              <span class="dates"
-                >${this.formatDate(trip.startDate)} →
-                ${this.formatDate(trip.endDate)}</span
-              >
+              <span class="dates">
+                ${this.fmt.format(new Date(trip.startDate))} →
+                ${this.fmt.format(new Date(trip.endDate))}
+              </span>
             </p>
             ${trip.participants?.length
-              ? html`
-                  <div class="participants">
-                    ${trip.participants.map(
-                      (p) => html`<span class="pill">${p}</span>`
-                    )}
-                  </div>
-                `
+              ? html`<div class="participants">
+                  ${trip.participants.map(
+                    (p) => html`<span class="pill">${p}</span>`
+                  )}
+                </div>`
               : null}
+          </div>
+          <!-- Actions -->
+          <div class="actions">
+            <app-button href="/trips/${trip._id}/edit" color="secondary"
+              >Edit</app-button
+            >
+            <app-button @click=${handleDelete} color="tertiary"
+              >Delete</app-button
+            >
           </div>
         </app-page-header>
 
-        <!-- Summary strip -->
-        <div class="summary">
+        <div class="summary summary--card">
           <div class="stat">
             <span class="stat__label">Days</span>
             <span class="stat__value">${dayCount}</span>
           </div>
           <div class="stat">
             <span class="stat__label">Budget</span>
-            <span class="stat__value">${total} ${currency}</span>
+            <span class="stat__value"
+              >${this.money(currency).format(total)}</span
+            >
           </div>
           <div class="stat">
             <span class="stat__label">People</span>
@@ -153,7 +171,9 @@ class TripDetail extends LitElement {
                                 >${a.title}</strong
                               >
                               ${a.time
-                                ? html`<span class="badge">${a.time}</span>`
+                                ? html`<span class="badge badge--time"
+                                    >${a.time}</span
+                                  >`
                                 : null}
                             </div>
                             ${[a.date, a.location].filter(Boolean).length
@@ -287,7 +307,7 @@ class TripDetail extends LitElement {
                   </ul>
                   <div class="total-row">
                     <span>Total</span>
-                    <strong>${total} ${currency}</strong>
+                    <strong>${this.money(currency).format(total)}</strong>
                   </div>
                 `
               : html`<div class="empty">
@@ -307,53 +327,6 @@ class TripDetail extends LitElement {
                 </app-card>
               `
             : null}
-
-          <!-- Inspiration / Photo -->
-          <app-card class="tile tile--inspo card--photo">
-            <img
-              src="/src/assets/images/travel-illustration.jpg"
-              alt="Travel inspiration illustration"
-              class="travel-img"
-            />
-            <div class="photo-caption">
-              <h3 class="photo-title">Travel Inspiration</h3>
-              <p class="photo-text">
-                Adventure is out there—pack light, roam far.
-              </p>
-            </div>
-          </app-card>
-
-          <!-- Quick facts -->
-          <app-card class="tile tile--facts">
-            <div class="facts">
-              <div class="fact">
-                <span class="fact__label">Days</span>
-                <span class="fact__value">${dayCount}</span>
-              </div>
-              <div class="fact">
-                <span class="fact__label">Budget</span>
-                <span class="fact__value">${total} ${currency}</span>
-              </div>
-              <div class="fact">
-                <span class="fact__label">People</span>
-                <span class="fact__value"
-                  >${trip.participants?.length ?? 0}</span
-                >
-              </div>
-            </div>
-          </app-card>
-
-          <!-- Actions -->
-          <app-card class="tile tile--actions">
-            <div class="actions">
-              <app-button href="/trips/${trip._id}/edit" color="secondary"
-                >Edit</app-button
-              >
-              <app-button @click=${handleDelete} color="tertiary"
-                >Delete</app-button
-              >
-            </div>
-          </app-card>
         </section>
       </div>
     `;
@@ -362,36 +335,77 @@ class TripDetail extends LitElement {
   static styles = [
     defaultStyles,
     css`
-      /* --- Paler blue just for this page (doesn't touch global theme) --- */
-      /* --- Paler blue and base surface --- */
       :host {
-        --pastel-blue: #e7f4fa;
-        --secondary: var(--pastel-blue);
-        --surface: color-mix(in srgb, var(--secondary) 45%, white 55%);
-
-        padding: 0.75rem;
-        max-width: 1200px;
-        margin: 0 auto;
+        display: block;
+        --radius-lg: 16px;
       }
 
-      /* Sticky trip header area */
-      app-page-header {
+      .wrap {
+        margin: 0 auto;
+        display: grid;
+        gap: 1rem;
+      }
+
+      /* Header */
+      .page__header {
         position: sticky;
         top: 0;
-        z-index: 10;
-        background: linear-gradient(180deg, white 70%, transparent);
-        backdrop-filter: blur(6px);
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.25rem;
+        padding-bottom: 0.25rem;
+      }
+      .header__title {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+      .subhead {
+        margin: 0.5rem 0 0.5rem;
+        color: var(--text-color-muted);
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        flex-wrap: wrap;
+      }
+      .pill {
+        background: var(--pastel-blue);
+        border-radius: 999px;
+        padding: 0.25rem 0.5rem;
+        margin-right: 0.5rem;
+        box-shadow: var(--shadow-xs);
+      }
+
+      /* Summary as a card */
+      .summary--card {
+        display: flex;
+        gap: 1rem;
+      }
+      .stat {
+        border-radius: 12px;
+        box-shadow: var(--shadow-sm);
+        padding: 0.6rem 0.75rem;
+        gap: 0.25rem;
+        text-align: center;
+        flex: 1;
+        background: var(--pastel-blue);
+        color: #000;
+      }
+      .stat__label {
+        font-size: 1rem;
+        margin-right: 0.25rem;
+      }
+      .stat__value {
+        font-weight: var(--font-weight-bold);
+        font-size: 1.2rem;
       }
 
       /* Cards grid */
       .cards {
-        display: grid;
-        gap: 0.75rem;
-        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        display: flex;
+        gap: 0.9rem;
+        flex-wrap: wrap;
+        justify-content: center;
       }
-
-      /* Named areas for ≥ 1100px */
       @media (min-width: 1100px) {
         .cards {
           grid-template-columns: 2fr 1fr 1fr;
@@ -399,7 +413,6 @@ class TripDetail extends LitElement {
             "itinerary weather budget"
             "itinerary notes   inspo"
             "itinerary facts   actions";
-          align-items: start;
         }
         .tile--itinerary {
           grid-area: itinerary;
@@ -424,20 +437,12 @@ class TripDetail extends LitElement {
         }
       }
 
-      /* Tile styling */
+      /* Unified card look */
       .tile {
-        border: 1px solid var(--border-color);
-        border-radius: var(--border-radius);
-        box-shadow: var(--shadow-sm);
-        background: var(--surface);
-        padding: 0.75rem;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-md);
+        padding: clamp(0.75rem, 1.6vw, 1rem);
       }
-      .card--photo {
-        padding: 0;
-        overflow: hidden;
-        background: #fff;
-      }
-
       .tile__head {
         display: flex;
         align-items: baseline;
@@ -448,33 +453,37 @@ class TripDetail extends LitElement {
       .tile__title {
         margin: 0;
         color: var(--primary);
-        font-size: 1.02rem;
+        font-size: 1.05rem;
       }
       .tile__cta {
         font-size: 0.9rem;
-        color: var(--primary);
+        color: #fff;
         text-decoration: none;
+        background: var(--old-burgundy);
+        padding: 0.35rem 0.7rem;
+        border-radius: 999px;
       }
 
-      /* Itinerary list density */
+      /* Itinerary */
       .itinerary {
-        display: grid;
-        gap: 0.5rem;
+        gap: 0.6rem;
+        list-style: none;
         margin: 0;
         padding: 0;
-        list-style: none;
+        min-width: 280px;
+        display: flex;
+        flex-direction: row;
       }
       .itinerary__item {
-        display: grid;
-        grid-template-columns: 12px 1fr;
-        gap: 0.5rem;
+        display: flex;
+        gap: 0.6rem;
       }
       .itinerary__bullet {
-        margin-top: 0.4rem;
+        margin-top: 0.45rem;
         width: 8px;
         height: 8px;
         border-radius: 99px;
-        background: var(--primary);
+        background: #000;
       }
       .itinerary__top {
         display: flex;
@@ -482,25 +491,32 @@ class TripDetail extends LitElement {
         align-items: baseline;
       }
       .badge {
-        padding: 0 0.4rem;
+        padding: 0 0.45rem;
         border-radius: 999px;
         font-size: 0.78rem;
-        background: #fff7;
+        background: var(--pastel-blue);
+        flex: end;
+      }
+      .badge--time {
+        font-variant-numeric: tabular-nums;
+      }
+      .meta {
+        color: var(--text-color-muted);
+        font-size: 0.92rem;
+        padding-top: 0.15rem;
+      }
+      .notes {
+        margin-top: 0.25rem;
       }
 
-      /* Weather tile */
+      /* Weather */
       .tile--weather {
-        background: linear-gradient(
-          180deg,
-          color-mix(in srgb, var(--secondary) 60%, white 40%) 0%,
-          var(--surface) 100%
-        );
       }
       .weather {
         display: grid;
         grid-template-columns: 1fr 200px;
-        align-items: center;
         gap: 0.75rem;
+        align-items: center;
       }
       @media (max-width: 720px) {
         .weather {
@@ -515,6 +531,8 @@ class TripDetail extends LitElement {
         display: grid;
         place-items: center;
         min-height: 160px;
+        background: var(--pastel-blue);
+        border-radius: 12px;
       }
       .wx-img {
         width: 100%;
@@ -523,16 +541,16 @@ class TripDetail extends LitElement {
         object-fit: contain;
       }
 
-      /* Budget list */
+      /* Budget */
       .list {
         display: grid;
-        gap: 0.3rem;
+        gap: 0.35rem;
+        list-style: none;
         margin: 0;
         padding: 0;
-        list-style: none;
       }
       .list__item {
-        padding: 0.3rem 0.2rem;
+        padding: 0.35rem 0.2rem;
         border-bottom: 1px dashed color-mix(in srgb, var(--primary) 15%, #0000);
       }
       .list__line {
@@ -546,65 +564,64 @@ class TripDetail extends LitElement {
       .total-row {
         display: flex;
         justify-content: space-between;
-        margin-top: 0.45rem;
-        padding-top: 0.4rem;
+        margin-top: 0.5rem;
+        padding-top: 0.5rem;
         border-top: 1px solid var(--border-color);
+        font-weight: var(--font-weight-bold);
       }
 
-      /* Photo tile */
-      .travel-img {
-        width: 100%;
-        height: 200px;
-        object-fit: cover;
-        display: block;
-      }
-      .photo-caption {
-        background: linear-gradient(
-          180deg,
-          color-mix(in srgb, white 70%, transparent) 0%,
-          color-mix(in srgb, var(--primary) 10%, white 90%) 100%
-        );
-        padding: 0.6rem 0.75rem;
-        text-align: center;
-      }
-
-      /* Facts mini-cards */
+      /* Facts */
       .facts {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 0.5rem;
+        gap: 0.6rem;
       }
       .fact {
-        background: #fff;
-        border: 1px solid var(--border-color);
-        border-radius: calc(var(--border-radius) - 2px);
-        padding: 0.6rem;
+        padding: 0.65rem;
         text-align: center;
         box-shadow: var(--shadow-xs);
       }
       .fact__label {
         display: block;
-        font-size: 0.78rem;
-        opacity: 0.7;
+        font-size: 0.85rem;
+        color: var(--text-color-muted);
       }
       .fact__value {
         font-weight: var(--font-weight-bold);
-        font-size: 1.05rem;
+        font-size: 1.1rem;
       }
 
       /* Actions */
       .actions {
         display: flex;
-        gap: 0.5rem;
+        gap: 0.6rem;
         justify-content: flex-end;
         flex-wrap: wrap;
       }
 
-      /* Empty */
+      /* Chips / pills */
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        border-radius: 999px;
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+        border: 1px solid var(--border-color);
+        background: var(--old-burgundy);
+        box-shadow: var(--shadow-xs);
+      }
+      .chip--accent {
+        color: #fff;
+      }
+      .chip--muted {
+        color: #fff;
+      }
+
       .empty {
         padding: 0.7rem;
-        font-size: 0.94rem;
-        opacity: 0.9;
+        font-size: 0.95rem;
+        color: var(--text-color-muted);
       }
     `,
   ];

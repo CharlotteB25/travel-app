@@ -1,28 +1,24 @@
-import { LitElement, html } from "lit";
+// settings-page.ts
+import { LitElement, html, css } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { defaultStyles } from "@components/style/styles";
-import { UserBody } from "@core/modules/user/User.types";
-import { getCurrentUser, updateUser } from "@core/modules/user/User.api"; // Import the necessary API methods
+import { UserBody, User } from "@core/modules/user/User.types";
+import { getCurrentUser, updateUser } from "@core/modules/user/User.api";
 import { consume } from "@lit/context";
 import { UserContext, userContext } from "./settingsContainer";
 import "@components/design/Typography/PageTitle";
 import "@components/design/Header/PageHeader";
-import "./SettingsForm"; // Import the form component
-import { User } from "@core/modules/user/User.types";
+import "./SettingsForm";
+
 @customElement("settings-page")
 class SettingsPage extends LitElement {
   @consume({ context: userContext, subscribe: true })
   @property({ attribute: false })
   public userContextValue?: UserContext | null;
 
-  @property({ type: Object })
-  user: User | null = null;
-
-  @property({ type: Boolean })
-  isLoading: boolean = false;
-
-  @property({ type: String })
-  error: string | null = null;
+  @property({ type: Object }) user: User | null = null;
+  @property({ type: Boolean }) isLoading = false;
+  @property({ type: String }) error: string | null = null;
 
   connectedCallback() {
     super.connectedCallback();
@@ -32,11 +28,10 @@ class SettingsPage extends LitElement {
   async fetchUserData() {
     this.isLoading = true;
     try {
-      const response = await getCurrentUser(); // Fetch the current user data
+      const response = await getCurrentUser();
       this.user = response.data;
-      // console.log(this.user);
       this.error = null;
-    } catch (error) {
+    } catch {
       this.error = "Failed to load user data";
       this.user = null;
     } finally {
@@ -44,41 +39,71 @@ class SettingsPage extends LitElement {
     }
   }
 
-  handleSuccess = () => {
-    this.fetchUserData(); // Refresh user data after a successful update
-  };
+  private handleSuccess = () => this.fetchUserData();
 
   render() {
-    const { user, isLoading, error } = this;
-
-    if (isLoading) {
-      return html`<p>Loading...</p>`;
-    }
-
-    if (error) {
-      return html`<p>${error}</p>`;
-    }
-
-    if (!user) {
-      return html`<p>No user data available</p>`;
-    }
-
-    //console.log(user._id);
+    if (this.isLoading) return html`<p class="muted center-msg">Loading…</p>`;
+    if (this.error)
+      return html`<p class="error-msg center-msg">${this.error}</p>`;
+    if (!this.user)
+      return html`<p class="muted center-msg">No user data available.</p>`;
 
     return html`
-      <app-page-header>
-        <app-page-title>Settings</app-page-title>
-      </app-page-header>
-      <settings-form
-        submitLabel="Save"
-        .onSuccess=${this.handleSuccess}
-        .data=${user}
-        .method=${(body: UserBody) => updateUser(user._id, body)}
-      ></settings-form>
+      <section class="page">
+        <app-page-header class="page__header">
+          <app-page-title>Settings</app-page-title>
+        </app-page-header>
+
+        <!-- Centered viewport area -->
+        <div class="page__center">
+          <div class="page__center-inner">
+            <settings-form
+              submitLabel="Save"
+              .onSuccess=${this.handleSuccess}
+              .data=${this.user}
+              .method=${(body: UserBody) => updateUser(this.user!._id, body)}
+            ></settings-form>
+          </div>
+        </div>
+      </section>
     `;
   }
 
-  static styles = [defaultStyles];
+  static styles = [
+    defaultStyles,
+    css`
+      :host {
+        display: block;
+      }
+
+      .page {
+        min-height: 100svh;
+        display: grid;
+        grid-template-rows: auto 1fr;
+      }
+
+      .page__header {
+        padding-inline: clamp(1rem, 2vw, 2rem);
+      }
+      .page__center {
+        display: flex;
+        justify-content: center;
+        padding: clamp(1rem, 2vw, 2rem);
+      }
+      .page__center-inner {
+        width: min(720px, 100%);
+      }
+
+      .center-msg {
+        text-align: center;
+        padding: 2rem;
+      }
+
+      .error-msg {
+        color: var(--red);
+      }
+    `,
+  ];
 }
 
 export default SettingsPage;

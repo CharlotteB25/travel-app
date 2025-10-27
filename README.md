@@ -9,6 +9,5 @@ api link for deployment:
 https://travel-app-wx5p.onrender.com
 
 To Do:
-Fix trips detail page layout
-Edit settings/profile page layout
+Fix edit buttons and links on detail page
 Add favicon 🔥
