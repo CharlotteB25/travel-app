@@ -3,60 +3,37 @@ import compression from "compression";
 import express, { Express } from "express";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
-import cors, { CorsOptions } from "cors";
 import passport from "../middleware/auth/passport";
 
-const rawAllowed = process.env.CORS_ORIGIN ?? "";
-const tokens = rawAllowed
-  .split(/[,\s]+/)
-  .map((s) => s.trim())
-  .filter(Boolean);
-
-const allowAny = tokens.includes("*");
-const allowedOrigins = allowAny ? [] : tokens;
-
-// CORS config that safely handles multiple origins + credentials + preflight
-const corsOptions: CorsOptions = {
-  origin: (origin, cb) => {
-    if (!origin) return cb(null, true); // server-to-server / same-origin
-    if (allowAny) return cb(null, true); // reflect the incoming origin
-    if (allowedOrigins.includes(origin)) return cb(null, true);
-    return cb(new Error("Not allowed by CORS"));
-  },
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  optionsSuccessStatus: 204,
-  preflightContinue: false,
-};
-
-// middleware/index.ts
 export const registerMiddleware = (app: Express) => {
-  // Always vary on origin
-  app.use((_, res, next) => {
-    res.setHeader("Vary", "Origin");
-    next();
-  });
-
-  // CORS FIRST
-  app.use(cors(corsOptions));
-  app.options("*", cors(corsOptions));
-
-  // Anti-wildcard guard (runs AFTER cors)
+  // 0) HARD CORS — FIRST and before anything else
   app.use((req, res, next) => {
-    const v = res.getHeader("Access-Control-Allow-Origin");
-    if (v === "*") {
-      const origin = req.headers.origin;
-      if (origin) {
-        res.setHeader("Access-Control-Allow-Origin", origin);
-        // ensure credentials header is present too
-        res.setHeader("Access-Control-Allow-Credentials", "true");
-      }
+    const origin = req.headers.origin as string | undefined;
+
+    // Always vary to avoid cache poisoning
+    res.setHeader("Vary", "Origin");
+
+    if (origin) {
+      // reflect the exact Origin (never '*') so credentials are allowed
+      res.setHeader("Access-Control-Allow-Origin", origin);
+      res.setHeader("Access-Control-Allow-Credentials", "true");
+      res.setHeader(
+        "Access-Control-Allow-Methods",
+        "GET,POST,PUT,PATCH,DELETE,OPTIONS"
+      );
+
+      // echo requested headers if provided; otherwise a safe default
+      const reqHeaders =
+        (req.headers["access-control-request-headers"] as string | undefined) ??
+        "Content-Type,Authorization";
+      res.setHeader("Access-Control-Allow-Headers", reqHeaders);
     }
+
+    if (req.method === "OPTIONS") return res.sendStatus(204);
     next();
   });
 
-  // Usual middleware
+  // 1) the rest
   app.use(express.json());
   app.use(cookieParser());
   app.use(helmet());
