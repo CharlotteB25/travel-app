@@ -30,15 +30,33 @@ const corsOptions: CorsOptions = {
   preflightContinue: false,
 };
 
+// middleware/index.ts
 export const registerMiddleware = (app: Express) => {
-  app.use((req, res, next) => {
+  // Always vary on origin
+  app.use((_, res, next) => {
     res.setHeader("Vary", "Origin");
     next();
   });
+
+  // CORS FIRST
   app.use(cors(corsOptions));
   app.options("*", cors(corsOptions));
 
-  // 3) Usual middleware
+  // Anti-wildcard guard (runs AFTER cors)
+  app.use((req, res, next) => {
+    const v = res.getHeader("Access-Control-Allow-Origin");
+    if (v === "*") {
+      const origin = req.headers.origin;
+      if (origin) {
+        res.setHeader("Access-Control-Allow-Origin", origin);
+        // ensure credentials header is present too
+        res.setHeader("Access-Control-Allow-Credentials", "true");
+      }
+    }
+    next();
+  });
+
+  // Usual middleware
   app.use(express.json());
   app.use(cookieParser());
   app.use(helmet());
