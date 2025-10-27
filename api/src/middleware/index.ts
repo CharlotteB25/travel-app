@@ -6,15 +6,15 @@ import helmet from "helmet";
 import passport from "../middleware/auth/passport";
 
 export const registerMiddleware = (app: Express) => {
-  // 0) HARD CORS — FIRST and before anything else
+  // --- HARD CORS (FIRST) ---
   app.use((req, res, next) => {
     const origin = req.headers.origin as string | undefined;
 
-    // Always vary to avoid cache poisoning
+    // Always vary on Origin to avoid cache poisoning
     res.setHeader("Vary", "Origin");
 
     if (origin) {
-      // reflect the exact Origin (never '*') so credentials are allowed
+      // Reflect the exact origin (never '*') so credentials are allowed
       res.setHeader("Access-Control-Allow-Origin", origin);
       res.setHeader("Access-Control-Allow-Credentials", "true");
       res.setHeader(
@@ -22,18 +22,20 @@ export const registerMiddleware = (app: Express) => {
         "GET,POST,PUT,PATCH,DELETE,OPTIONS"
       );
 
-      // echo requested headers if provided; otherwise a safe default
+      // Echo the headers the browser says it will send (authorization, content-type, etc.)
       const reqHeaders =
         (req.headers["access-control-request-headers"] as string | undefined) ??
         "Content-Type,Authorization";
       res.setHeader("Access-Control-Allow-Headers", reqHeaders);
     }
 
+    // Short-circuit preflight so no proxy can add '*'
     if (req.method === "OPTIONS") return res.sendStatus(204);
+
     next();
   });
 
-  // 1) the rest
+  // --- the rest ---
   app.use(express.json());
   app.use(cookieParser());
   app.use(helmet());

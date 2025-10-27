@@ -4,7 +4,7 @@ import { Router } from "@vaadin/router";
 
 export const API = axios.create({
   baseURL: import.meta.env.VITE_API_URL as string, // e.g. https://travel-app-wx5p.onrender.com
-  withCredentials: true,
+  withCredentials: false,
   headers: { "Content-Type": "application/json" },
 });
 
