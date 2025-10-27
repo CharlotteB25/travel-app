@@ -15,11 +15,6 @@ class TripDetail extends LitElement {
   @property({ attribute: false })
   tripContextValue?: TripContext | null;
 
-  private formatDate(d: string | Date) {
-    const dt = d instanceof Date ? d : new Date(d);
-    return dt.toLocaleDateString();
-  }
-
   private fmt = new Intl.DateTimeFormat(undefined, {
     year: "numeric",
     month: "short",
