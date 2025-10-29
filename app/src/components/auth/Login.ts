@@ -120,10 +120,7 @@ class Login extends LitElement {
         align-items: center;
         height: 100vh;
         width: 100vw;
-        background: var(
-          --background-color,
-          #f0f0f0
-        ); /* Optional background color */
+        background-image: url("/assets/images/dark-blue-marble-wave-background.jpg");
       }
 
       .form-wrapper {
@@ -132,8 +129,8 @@ class Login extends LitElement {
         align-items: center;
         padding: 2rem;
         border: 1px solid #ddd;
-        border-radius: 8px;
-        background: #fff;
+        border-radius: 20px;
+        background: var(--pastel-blue);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       }
 

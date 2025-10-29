@@ -2,12 +2,11 @@
   "name": "api",
   "version": "1.0.0",
   "description": "",
-  "scripts": {
+ "scripts": {
     "dev": "nodemon src/server.ts",
-    "build:frontend": "npm --prefix frontend ci && npm --prefix frontend run build",
-    "copy:frontend": "node scripts/copy-frontend.js",
+    "build:frontend": "npm --prefix app ci && npm --prefix app run build",
     "build:backend": "esbuild src/server.ts --bundle --platform=node --outfile=dist/index.js --format=esm",
-    "build": "npm run build:frontend && npm run copy:frontend && npm run build:backend",
+    "build": "npm run build:frontend && npm run build:backend",
     "start": "node dist/index.js"
   },
   "author": "",
