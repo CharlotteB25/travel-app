@@ -90,7 +90,15 @@ class Login extends LitElement {
               />
             </div>
             <div class="form-control">
-              <a href="/register">Don't have an account? Register</a>
+              <a
+                href="/register"
+                @click=${(e: Event) => {
+                  e.preventDefault();
+                  Router.go("/register");
+                }}
+              >
+                Don't have an account? Register
+              </a>
             </div>
             <button class="btn-primary" type="submit" ?disabled=${isLoading}>
               Login

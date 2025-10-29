@@ -954,7 +954,7 @@ class TripCreate extends LitElement {
         padding: 0.7rem 0.9rem;
         border-radius: var(--border-radius);
         border: 1px solid var(--border-color);
-        background: var(--surface);
+        background: #fff;
         color: var(--text-color);
         box-shadow: var(--shadow-sm);
         width: 100%;
