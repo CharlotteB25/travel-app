@@ -17,14 +17,6 @@ registerRoutes(app);
 // 3) SPA: resolve at runtime from working directory
 const clientDir = path.join(process.cwd(), "dist"); // <-- runtime path
 
-//sanity check
-console.log("[SPA] cwd:", process.cwd());
-console.log("[SPA] clientDir:", clientDir);
-console.log(
-  "[SPA] index exists:",
-  fs.existsSync(path.join(clientDir, "index.html"))
-);
-
 // Helpful diagnostics (keep for a deploy or two)
 console.log("[SPA] cwd:", process.cwd());
 console.log("[SPA] clientDir:", clientDir);
