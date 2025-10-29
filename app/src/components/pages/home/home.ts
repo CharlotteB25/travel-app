@@ -173,9 +173,6 @@ class Home extends LitElement {
         max-width: 1200px;
         margin: 0 auto;
         padding: 1.5rem 1rem;
-        background: img(
-          url("/src/assets/dark-blue-marble-wave-background.jpg")
-        );
       }
 
       /* Hero uses 60/30/10 via tokens:
@@ -230,8 +227,8 @@ class Home extends LitElement {
       }
 
       .section-title {
-        font-size: 1.25rem;
-        color: var(--primary);
+        font-size: 1.4rem;
+        color: var(--primary900);
         margin: 0 0 0.5rem;
         padding: 5px; /* keep your defaultStyles heading padding rhythm */
       }

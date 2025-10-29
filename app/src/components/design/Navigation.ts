@@ -238,7 +238,7 @@ class Navigation extends LitElement {
         display: none;
         width: 40px;
         height: 40px;
-        border: 1px solid var(--border-color);
+        border: 1.5px solid var(--old-burgundy);
         border-radius: 10px;
         background: var(--surface);
         cursor: pointer;

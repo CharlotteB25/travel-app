@@ -5,8 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Travel App</title>
     <script type="module" src="./src/index.ts"></script>
+    
+    <link
+      rel="icon"
+      type="image/png"
+      href="./assets/icons/travel-favicon.png"
+    />
   </head>
+<style>
+  html, body { height: 100%; }
+  html { background-color: #0d2035; } /* dark brand to avoid white overscroll */
+  body { margin: 0; background: transparent; position: relative; }
+
+  body::before{
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      url("/dark-blue-marble-wave-background.jpg")
+      no-repeat center bottom / cover;
+  }
+</style>
+
 
   <body>
     <div id="app"></div>
+
+
+
 </html>

@@ -69,7 +69,7 @@ class Login extends LitElement {
             <div class="form-control">
               <label class="form-control__label" for="email">Email</label>
               <input
-                class="form-control__input"
+                class="form-control-input"
                 type="email"
                 name="email"
                 id="email"
@@ -81,7 +81,7 @@ class Login extends LitElement {
             <div class="form-control">
               <label class="form-control__label" for="password">Password</label>
               <input
-                class="form-control__input"
+                class="form-control-input"
                 type="password"
                 name="password"
                 id="password"
@@ -145,11 +145,11 @@ class Login extends LitElement {
         font-weight: bold;
       }
 
-      .form-control__input {
+      .form-control-input {
         width: 100%;
         padding: 0.75rem;
         border: 1px solid #ccc;
-        border-radius: 4px;
+        border-radius: 10px;
       }
 
       .form-control a {
@@ -162,6 +162,10 @@ class Login extends LitElement {
       .form-control a:hover {
         text-decoration: underline;
       }
+
+      .btn-primary {
+        margin-top: 1rem;
+        width: 100%;
     `,
   ];
 }

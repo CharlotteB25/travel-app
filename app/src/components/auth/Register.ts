@@ -53,7 +53,7 @@ class Register extends LitElement {
             <div class="form-control">
               <label class="form-control__label" for="name">Name</label>
               <input
-                class="form-control__input"
+                class="form-control-input"
                 type="text"
                 name="name"
                 id="name"
@@ -65,7 +65,7 @@ class Register extends LitElement {
             <div class="form-control">
               <label class="form-control__label" for="email">Email</label>
               <input
-                class="form-control__input"
+                class="form-control-input"
                 type="email"
                 name="email"
                 id="email"
@@ -77,7 +77,7 @@ class Register extends LitElement {
             <div class="form-control">
               <label class="form-control__label" for="password">Password</label>
               <input
-                class="form-control__input"
+                class="form-control-input"
                 type="password"
                 name="password"
                 id="password"
@@ -121,14 +121,9 @@ class Register extends LitElement {
         display: flex;
         flex-direction: column;
         align-items: center;
-        padding: 5rem 2rem;
-        background: rgba(
-          255,
-          255,
-          255,
-          0.8
-        ); /* Optional: add background color with opacity for better readability */
-        border-radius: 8px; /* Optional: add border-radius */
+        padding: 2rem;
+        background: var(--pastel-blue);
+        border-radius: 20px; /* Optional: add border-radius */
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: add shadow */
       }
 
@@ -143,11 +138,12 @@ class Register extends LitElement {
         font-weight: bold;
       }
 
-      .form-control__input {
+      .form-control-input {
         width: 100%;
         padding: 0.75rem;
         border: 1px solid #ccc;
-        border-radius: 4px;
+
+        border-radius: 10px;
       }
 
       .form-control a {
@@ -159,6 +155,11 @@ class Register extends LitElement {
 
       .form-control a:hover {
         text-decoration: underline;
+      }
+
+      .btn-primary {
+        margin-top: 1rem;
+        width: 100%;
       }
     `,
   ];
