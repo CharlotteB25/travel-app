@@ -1,13 +1,9 @@
 // app.ts
 import express, { Express } from "express";
 import path from "path";
-import { fileURLToPath } from "url";
 import { registerRoutes } from "./routes";
 import { registerMiddleware } from "./middleware";
 import history from "connect-history-api-fallback";
-
-import dotenv from "dotenv";
-const __dirname = path.dirname(__filename);
 
 const app: Express = express();
 
