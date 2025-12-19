@@ -1,53 +1,51 @@
-const dotenv = require("dotenv");
+import dotenv from "dotenv";
 dotenv.config();
 
 import mongoose from "mongoose";
 import app from "./app";
-import { Server } from "http";
+import type { Server } from "http";
 
-import UserModel from "./modules/User/User.model";
+const port = Number(process.env.PORT) || 3000;
+const mongoUri = process.env.MONGO_CONNECTION;
 
-const port: number = parseInt(process.env.PORT ?? "3002");
+let server: Server;
 
-//connect to mongo
-if (process.env.MONGO_CONNECTION) {
-  mongoose
-    .connect(process.env.MONGO_CONNECTION)
-    .then(() => {
-      console.log("Connected to MongoDB");
+// ✅ Always listen first so Render detects an open port
+server = app.listen(port, () => {
+  console.log(`✅ Server is running on port ${port}`);
+});
 
-      // start server
-      const server = app.listen(port, () => {
-        console.log(`Server is running on port ${port}`);
-      });
-      /*
-      const newDocument = new UserModel({
-        name: "Johnny Doe",
-        email: "johnnydoe@email.com",
-        password: "password123",
-      });
+// Optional: simple health endpoint (add this in app.ts if not present)
+// app.get("/", (_req, res) => res.status(200).send("OK"));
 
-      newDocument
-        .save()
-        .then((doc) => {
-          console.log("Document saved:", doc);
-        })
-        .catch((err) => {
-          console.error("Error saving document:", err);
-        });
-*/
-      process.on("SIGINT", () => stopServer(server));
-      process.on("SIGTERM", () => stopServer(server));
-    })
-    .catch((error) => console.error(error));
-} else {
-  throw new Error("No MongoDB connection string");
+async function connectWithRetry() {
+  if (!mongoUri) {
+    console.error("❌ No MongoDB connection string (MONGO_CONNECTION missing)");
+    return;
+  }
+
+  try {
+    await mongoose.connect(mongoUri, {
+      serverSelectionTimeoutMS: 10000,
+    });
+    console.log("✅ Connected to MongoDB");
+  } catch (err) {
+    console.error("❌ MongoDB connect failed — retrying in 5s", err);
+    setTimeout(connectWithRetry, 5000);
+  }
 }
-// stop server
-const stopServer = (server: Server) => {
-  mongoose.connection.close();
+
+connectWithRetry();
+
+const stopServer = async () => {
+  try {
+    await mongoose.connection.close();
+  } catch {}
   server.close(() => {
-    console.log("Server closed");
-    process.exit();
+    console.log("🛑 Server closed");
+    process.exit(0);
   });
 };
+
+process.on("SIGINT", stopServer);
+process.on("SIGTERM", stopServer);
