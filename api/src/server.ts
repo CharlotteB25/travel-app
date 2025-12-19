@@ -5,7 +5,7 @@ import mongoose from "mongoose";
 import app from "./app";
 import type { Server } from "http";
 
-const port = Number(process.env.PORT) || 3000;
+const port = Number(process.env.PORT) | 3000;
 const mongoUri = process.env.MONGO_CONNECTION;
 
 let server: Server;
