@@ -18,7 +18,7 @@ if (process.env.MONGO_CONNECTION) {
 
       // start server
       const server = app.listen(port, () => {
-        console.log(`Server is running on port http://localhost:${port}`);
+        console.log(`Server is running on port ${port}`);
       });
       /*
       const newDocument = new UserModel({
